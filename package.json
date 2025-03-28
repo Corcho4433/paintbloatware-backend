@@ -4,12 +4,17 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/node": "^22.13.14"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/pg": "^8.11.11",
+    "express": "^4.21.2",
+    "pg": "^8.14.1",
     "postgres": "^3.4.5"
   }
 }
