@@ -1,4 +1,4 @@
-import express from 'express';
+/* import express from 'express';
 import * as userController from '../models/user';
 
 const router = express.Router();
@@ -25,4 +25,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-export default router;
+export default router; */

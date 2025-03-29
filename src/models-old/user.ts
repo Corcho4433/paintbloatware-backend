@@ -1,4 +1,4 @@
-import postgres from 'postgres';
+/* import postgres from 'postgres';
 import sql from '../db.ts'; // Import your configured sql instance
 
 interface User {
@@ -17,4 +17,4 @@ export const getUsers = async (): Promise<User[]> => {
 export const getUserById = async (id: number): Promise<User | null> => {
   const [user] = await sql<User[]>`SELECT * FROM users WHERE id = ${id}`;
   return user || null;
-};
+}; */
