@@ -1,7 +1,6 @@
 import { db } from "../db"
-import { Users } from "../db/schema"
+import { Users, usersTable } from "../db/schema"
 
 export const getUsers = async () => {
-    
-    return []
+    return await db.select().from(usersTable)
 }
