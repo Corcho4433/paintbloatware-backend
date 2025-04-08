@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1743258226276,
-      "tag": "0000_silky_cerebro",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1743861251041,
-      "tag": "0001_seed-db",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1743861937298,
-      "tag": "0002_jittery_wallop",
+      "when": 1743866333155,
+      "tag": "0000_cloudy_captain_britain",
       "breakpoints": true
     }
   ]

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUsers } from '../services/user-service';
+import { getUserById, getUsers } from '../services/user-service';
 
 export const userRouter = express.Router();
 
@@ -14,7 +14,8 @@ userRouter.get('/', async (req, res) => {
 
 userRouter.get('/:id', async (req, res) => {
   try {
-    const user = null; // TODO: haganlo
+    const id = parseInt(req.params.id)
+    const user = await getUserById(id)
     if (user) {
       res.json(user);
     } else {

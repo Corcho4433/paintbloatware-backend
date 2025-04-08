@@ -6,7 +6,11 @@ export const getPosts = async () => {
     return await db.select().from(postsTable)
 }
 
-export const getPostsWUser = async () => {
+export const getPostById = async (PostID: number) => {
+  return await db.select().from(postsTable).where(eq(postsTable.id, PostID))
+}
+
+export const getPostsWithUser = async () => {
     return await db
       .select({
         post: {

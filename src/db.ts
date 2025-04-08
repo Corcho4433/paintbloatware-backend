@@ -6,9 +6,5 @@ const DATABASE_URL=`postgresql://${process.env.DB_USER}:${process.env.DB_PASSWOR
 
 export const db = drizzle(DATABASE_URL);
 
-const result = await db.execute("select 1");
-
-console.log(result);
-
 
 
