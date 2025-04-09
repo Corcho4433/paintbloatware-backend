@@ -11,5 +11,3 @@ export const postsTable = pgTable("posts", {
   title: varchar({ length: 255 }).notNull(),
   comment: varchar({ length: 255 }).notNull(),
 });
-
-export const Users = usersTable.$inferSelect;

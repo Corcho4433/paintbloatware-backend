@@ -1,6 +1,6 @@
 import { db } from "../db"
 import { eq } from "drizzle-orm";
-import { Users, usersTable } from "../db/schema"
+import { usersTable } from "../db/schema"
 
 export const getUsers = async () => {
     return await db.select().from(usersTable)
