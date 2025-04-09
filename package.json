@@ -4,7 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "seed": "bun run src/utils/db.ts makeSeed",
+    "resetdb": "bun run src/utils/db.ts resetDatabase"
   },
   "devDependencies": {
     "@types/bun": "latest",

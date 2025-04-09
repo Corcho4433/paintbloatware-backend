@@ -6,10 +6,9 @@ To install dependencies:
 bun install
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Para levantar la base de datos:
+- Instalar docker-compose
+- start y enable docker
+- sudo docker-compose up -d
+- bunx drizzle-kit migrate
+- bun seed

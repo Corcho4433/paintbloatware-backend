@@ -12,7 +12,6 @@ postRouter.get('/', async (req, res) => {
   }
 });
 
-
 postRouter.get('/user', async (req, res) => {
     try {
       const posts = await getPostsWithUser();
