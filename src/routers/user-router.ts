@@ -1,5 +1,7 @@
 import express from 'express';
 import { getUserById, getUsers } from '../services/user-service';
+import { db } from '../db';
+import { usersTable } from '../db/schema';
 
 export const userRouter = express.Router();
 
@@ -15,7 +17,7 @@ userRouter.get('/', async (req, res) => {
 userRouter.post('/', async (req, res) => {
   try {
     console.log(req.body)
-    res.send(201)
+    res.status(201).send(req.body)
   } catch (error){
     res.status(500).json({ error: 'Internal server error' });
   }
