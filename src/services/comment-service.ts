@@ -1,6 +1,6 @@
 import { db } from "../db"
 import { eq } from "drizzle-orm";
-import { postsTable, usersTable, commentsTable } from "../db/schema"
+import { postsTable, commentsTable } from "../db/schema"
 
 export const getComments = async () => {
     return await db.select().from(commentsTable)
@@ -14,7 +14,11 @@ export const getCommentsByPost = async (CommentID: number) => {
   return await db.select().from(commentsTable).where(eq(commentsTable.id_post, CommentID));
 }
 
-/* export const getCommentsByPost = async () => {
+export const getCommentsByUser = async (UserID: number) => {
+  return await db.select().from(commentsTable).where(eq(commentsTable.id_user, UserID));
+}
+
+export const getAllInfoPosts = async () => {
     return await db 
       .select({
         comment: {
@@ -24,8 +28,10 @@ export const getCommentsByPost = async (CommentID: number) => {
         },
         post: {
           id: postsTable.id,
+          title: postsTable.title,
+          content: postsTable.content,
         }
       })
       .from(commentsTable)
       .leftJoin(postsTable, eq(postsTable.id, commentsTable.id_post));
-  }; */
+  }; 
