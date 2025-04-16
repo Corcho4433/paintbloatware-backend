@@ -16,7 +16,7 @@ export const getPostsWithUser = async () => {
         post: {
           id: postsTable.id,
           title: postsTable.title,
-          comment: postsTable.comment,
+          content: postsTable.content,
         },
         user: {
           name: usersTable.name,
@@ -25,3 +25,4 @@ export const getPostsWithUser = async () => {
       .from(postsTable)
       .leftJoin(usersTable, eq(postsTable.id_user, usersTable.id));
   };
+  
