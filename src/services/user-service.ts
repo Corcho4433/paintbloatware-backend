@@ -12,13 +12,16 @@ export const getUserById = async (UserID: string) => {
 }
 
 export const getUserByEmail = async (email:string) => {
-    return await db.query.usersTable.findFirst({
+    const user = await db.query.usersTable.findFirst({
         where: (users, {eq}) => eq(users.email, email)
     });
+    if(!user){
+        throw new Error("No hay usuario con el email/nombre dado :3")
+    }
+    return user
 }
 
-export const createUserByEmailAndName = async (email:string, name:string) => {
-    return await db.query.usersTable.findFirst({
-        where: (users, {eq, and}) => and(eq(users.email, email), eq(users.name, name))
-    });
+export const createUser = async (email:string, name:string, password_hash:string) => {
+    await db.insert(usersTable).values({password:password_hash, name, email});
+    return await getUserByEmail(email)
 }
