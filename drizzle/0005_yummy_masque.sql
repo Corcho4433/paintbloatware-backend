@@ -1,1 +1,0 @@
-ALTER TABLE "sessions" DROP CONSTRAINT "sessions_id_user_unique";

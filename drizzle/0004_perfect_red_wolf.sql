@@ -1,1 +1,0 @@
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_id_user_users_id_fk" FOREIGN KEY ("id_user") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
