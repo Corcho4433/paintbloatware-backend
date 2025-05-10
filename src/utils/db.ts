@@ -1,13 +1,16 @@
 import { seed, reset } from "drizzle-seed";
-import *  as schema from "../db/schema"
+import * as users from '../db/users'
+import * as comments from '../db/comments'
+import * as posts from '../db/posts'
+
 import { db } from "../db"
 
 async function makeSeed() {
-    await seed(db, schema )
+    await seed(db, { ...users, ...posts, ...comments })
 }
 
 async function resetDatabase() {
-    await reset(db, schema)
+    await reset(db, { ...users, ...posts, ...comments })
 }
 
 const command = process.argv[2]

@@ -23,7 +23,7 @@ postRouter.get('/user', async (req, res) => {
   
 postRouter.get('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id)
+    const id = req.params.id
     const post = await getPostById(id)
     if (post) {
       res.json(post);

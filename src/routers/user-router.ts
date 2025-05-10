@@ -1,7 +1,7 @@
 import express from 'express';
 import { getUserById, getUsers } from '../services/user-service';
 import { db } from '../db';
-import { usersTable } from '../db/schema';
+import { usersTable } from '../db/users';
 
 export const userRouter = express.Router();
 
@@ -25,7 +25,7 @@ userRouter.post('/', async (req, res) => {
 
 userRouter.get('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id)
+    const id = req.params.id
     const user = await getUserById(id)
     if (user) {
       res.json(user);

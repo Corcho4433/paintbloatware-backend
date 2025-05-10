@@ -1,20 +1,21 @@
 import { db } from "../db"
 import { eq } from "drizzle-orm";
-import { postsTable, commentsTable } from "../db/schema"
+import { commentsTable } from "../db/comments";
+import { postsTable } from "../db/posts";
 
 export const getComments = async () => {
     return await db.select().from(commentsTable)
 }
 
-export const getCommentById = async (CommentID: number) => {
+export const getCommentById = async (CommentID: string) => {
   return await db.select().from(commentsTable).where(eq(commentsTable.id, CommentID));
 }
 
-export const getCommentsByPost = async (CommentID: number) => {
+export const getCommentsByPost = async (CommentID: string) => {
   return await db.select().from(commentsTable).where(eq(commentsTable.id_post, CommentID));
 }
 
-export const getCommentsByUser = async (UserID: number) => {
+export const getCommentsByUser = async (UserID: string) => {
   return await db.select().from(commentsTable).where(eq(commentsTable.id_user, UserID));
 }
 

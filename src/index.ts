@@ -2,6 +2,7 @@ import express from 'express';
 import { userRouter } from './routers/user-router';
 import { postRouter } from './routers/post-router';
 import { commentRouter } from './routers/comment-router';
+import { authRouter } from './routers/auth-router'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,10 +13,15 @@ app.use(express.json());
 app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/comments', commentRouter);
+app.use('/api/auth', authRouter)
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
+  try {
+    res.json({ status: 'healthy' });
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 // Start server

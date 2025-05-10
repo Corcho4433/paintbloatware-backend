@@ -14,7 +14,7 @@ commentRouter.get('/', async (req, res) => {
 
 commentRouter.get('/post/:post', async (req, res) => {
     try {
-      const id_post = parseInt(req.params.post)
+      const id_post = req.params.post
       const comments = await getCommentsByPost(id_post);
       res.json({ "comments": comments });
     } catch (error) {
@@ -24,7 +24,7 @@ commentRouter.get('/post/:post', async (req, res) => {
   
 commentRouter.get('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id)
+    const id = req.params.id
     const comment = await getCommentById(id)
     if (comment) {
       res.json(comment);
