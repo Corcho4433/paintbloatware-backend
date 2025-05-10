@@ -6,24 +6,26 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "seed": "bun run src/utils/db.ts makeSeed",
-    "resetdb": "bun run src/utils/db.ts resetDatabase"
+    "resetdb": "bun run src/utils/db.ts resetDatabase",
+    "migrate": "prisma migrate dev --schema src/db/schema",
+    "generate": "prisma generate --no-engine --schema src/db/schema"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^22.13.14",
-    "drizzle-kit": "^0.30.6",
     "tsx": "^4.19.3"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@prisma/client": "^6.7.0",
     "@types/express": "^5.0.1",
     "@types/pg": "^8.11.11",
     "dotenv": "^16.4.7",
-    "drizzle-seed": "^0.3.1",
     "express": "^4.21.2",
     "pg": "^8.14.1",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "prisma": "^6.7.0"
   }
 }

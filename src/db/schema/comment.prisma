@@ -1,0 +1,11 @@
+model Comment{
+  id String @id @default(cuid())
+  id_user String
+  id_post String
+  content String
+
+  user User @relation(fields: [id_user], references: [id])
+  post Post @relation(fields: [id_post], references: [id])
+
+  @@map("comments")
+}
