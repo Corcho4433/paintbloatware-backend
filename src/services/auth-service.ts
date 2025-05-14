@@ -1,8 +1,6 @@
-import { db } from "../db"
-import { eq } from "drizzle-orm";
+import { db } from "../db/db";
 import { getUserByEmail } from "./user-service";
-import { usersTable } from "../db/users";
-import { sessionsTable } from "../db/sessions";
+import { randomUUID } from "crypto";
 
 export const verifyUser = async (email: string, password: string) => {
     const user = await getUserByEmail(email)
@@ -13,20 +11,20 @@ export const verifyUser = async (email: string, password: string) => {
     return user
 }
 
-const generateSessionToken = (length = 16) =>{
-  const charset = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklxcvbnm"
-  let result = ""
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random()*charset.length)
-    result += charset[randomIndex]
-  }
-  return result
+const generateSessionToken = () =>{
+  return randomUUID()
 }
 
-export const generateUserSession = async (userId: string) => {
-  const session_token = generateSessionToken(32)
-  await db.insert(sessionsTable).values({id_user: userId, session_token: session_token})
-  return session_token
+export const generateUserSession = async (id_user: string) => {
+  const session_token = generateSessionToken()
+  try {
+    await db.session.create({
+    data: { id_user, session_token}
+    })  
+    return session_token
+  } catch (error) {
+    throw new Error("Error al crear la sesion :c")
+  }
 }
 
 export const createPassword = async (password: string) => {

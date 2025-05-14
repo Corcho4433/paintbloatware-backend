@@ -1,29 +1,53 @@
-import { db } from "../db"
-import { eq } from "drizzle-orm";
-import { postsTable } from "../db/posts";
-import { usersTable } from "../db/users";
+import { db } from "../db/db"
 
 export const getPosts = async () => {
-    return await db.select().from(postsTable)
+  return await db.post.findMany({
+    include: {
+      user: {
+        select: {
+          name: true,
+          id: true
+        }
+      },
+      _count: {
+        select: {
+          comments: true
+        }
+      }
+    }
+  });
+};
+
+export const getPostsByUser = async (userID: string) => {
+    return await db.post.findMany({
+        where: {
+            id_user: userID
+        }
+    });
 }
 
 export const getPostById = async (PostID: string) => {
-  return await db.select().from(postsTable).where(eq(postsTable.id, PostID))
-}
-
-export const getPostsWithUser = async () => {
-    return await db
-      .select({
-        post: {
-          id: postsTable.id,
-          title: postsTable.title,
-          content: postsTable.content,
-        },
-        user: {
-          name: usersTable.name,
+  return await db.post.findFirst({
+    include: {
+      user: {
+        select: {
+          name: true,
+          id: true
         }
-      })
-      .from(postsTable)
-      .leftJoin(usersTable, eq(postsTable.id_user, usersTable.id));
-  };
-  
+      },
+      comments: {
+        include: {
+          user: {
+            select: {
+              name: true,
+              id: true
+            }
+          }
+        }
+      }
+    },
+    where: {
+      id: PostID
+    }
+  });
+}

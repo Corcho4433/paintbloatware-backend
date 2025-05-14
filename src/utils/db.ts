@@ -1,9 +1,4 @@
-import { seed, reset } from "drizzle-seed";
-import * as users from '../db/users'
-import * as comments from '../db/comments'
-import * as posts from '../db/posts'
-
-import { db } from "../db"
+/* import { PrismaClient } from "@prisma/client";
 
 async function makeSeed() {
     await seed(db, { ...users, ...posts, ...comments })
@@ -20,4 +15,4 @@ if (command === "makeSeed") {
 } else if (command === "resetDatabase")
     {
     resetDatabase()
-}
+} */

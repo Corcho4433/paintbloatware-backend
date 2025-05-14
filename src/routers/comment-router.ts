@@ -1,16 +1,7 @@
 import express from 'express';
-import { getCommentById, getComments,getCommentsByPost } from '../services/comment-service';
+import { getCommentById, getCommentsByPost } from '../services/comment-service';
 
 export const commentRouter = express.Router();
-
-commentRouter.get('/', async (req, res) => {
-  try {
-    const comments = await getComments();
-    res.json({ "comments": comments });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error skibidi' });
-  }
-});
 
 commentRouter.get('/post/:post', async (req, res) => {
     try {

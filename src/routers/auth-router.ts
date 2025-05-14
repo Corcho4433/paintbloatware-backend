@@ -1,11 +1,5 @@
 import express from 'express';
-import { getPostById, getPosts,getPostsWithUser } from '../services/post-service';
-import { db } from '../db';
-import { eq, and } from "drizzle-orm";
-import { usersTable } from '../db/users';
-import { randomBytes } from 'crypto';
-import { error } from 'console';
-import { createUser, getUserByEmail } from '../services/user-service';
+import { createUser } from '../services/user-service';
 import { createPassword, generateUserSession, verifyUser } from '../services/auth-service';
 
 export const authRouter = express.Router();

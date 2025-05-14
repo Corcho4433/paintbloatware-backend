@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPostById, getPosts,getPostsWithUser } from '../services/post-service';
+import { getPostById, getPostsByUser , getPosts} from '../services/post-service';
 
 export const postRouter = express.Router();
 
@@ -12,14 +12,15 @@ postRouter.get('/', async (req, res) => {
   }
 });
 
-postRouter.get('/user', async (req, res) => {
-    try {
-      const posts = await getPostsWithUser();
-      res.json({ "posts": posts });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error skibidi' });
-    }
-  });
+postRouter.get('/user/:id', async (req, res) => {
+  try {
+    const id_user = req.params.id 
+    const posts = await getPostsByUser(id_user);
+    res.json({ "posts": posts });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error skibidi' });
+  }
+});
   
 postRouter.get('/:id', async (req, res) => {
   try {
@@ -34,3 +35,5 @@ postRouter.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error sigma' });
   }
 });
+
+// postRouter.post('/id/comment', async (req, res) => { | crear comentario

@@ -1,7 +1,5 @@
 import express from 'express';
 import { getUserById, getUsers } from '../services/user-service';
-import { db } from '../db';
-import { usersTable } from '../db/users';
 
 export const userRouter = express.Router();
 
