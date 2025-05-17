@@ -17,6 +17,7 @@ authRouter.post("/register", async (req, res) => {
 		if (!user) throw new Error("No se creo el usuario :3");
 		res.status(201).json({ data: user.id });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({ error: (error as Error).message });
 	}
 });
@@ -26,9 +27,10 @@ authRouter.post("/login", async (req, res) => {
 		const { body } = req;
 		const { email, password } = body;
 		const user = await verifyUser(email, password);
-		const session_token = generateUserSession(user.id);
+		const session_token = await generateUserSession(user.id);
 		res.status(200).json({ data: session_token });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({ error: (error as Error).message });
 	}
 });

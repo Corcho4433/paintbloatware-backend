@@ -9,6 +9,7 @@ commentRouter.get("/post/:post", async (req, res) => {
 		const comments = await getCommentsByPost(id_post);
 		res.json({ comments: comments });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({ error: "Internal server error skibidi" });
 	}
 });
@@ -23,6 +24,7 @@ commentRouter.get("/:id", async (req, res) => {
 			res.status(404).json({ error: "Comment not found lolo" });
 		}
 	} catch (error) {
+		console.error(error);
 		res
 			.status(500)
 			.json({ error: "Internal server error sigma male rizzler niggachain" });

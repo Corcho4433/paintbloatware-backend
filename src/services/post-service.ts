@@ -24,6 +24,13 @@ export const getPostsByUser = async (userID: string) => {
 		where: {
 			id_user: userID,
 		},
+		include: {
+			_count: {
+				select: {
+					comments: true,
+				},
+			},
+		},
 	});
 };
 
