@@ -33,10 +33,13 @@ export const getPostsByUser = async (userID: string) => {
 		},
 	});
 };
-
 export const getPostById = async (PostID: string) => {
 	return await db.post.findFirst({
-		include: {
+		select: {
+			id: true,
+			title: true,
+			content: true,
+			image_json: true,
 			user: {
 				select: {
 					name: true,
@@ -44,7 +47,9 @@ export const getPostById = async (PostID: string) => {
 				},
 			},
 			comments: {
-				include: {
+				select: {
+					id: true,
+					content: true,
 					user: {
 						select: {
 							name: true,
@@ -60,8 +65,20 @@ export const getPostById = async (PostID: string) => {
 	});
 };
 
-export const createPost = async (post: Post) => {
+interface PostBody {
+	title: string;
+	content: string;
+	image: string;
+	id_user: string;
+}
+
+export const createPost = async (post: PostBody) => {
 	return await db.post.create({
-		data: post,
+		data: {
+			title: post.title,
+			content: post.content,
+			id_user: post.id_user,
+			image_json: JSON.parse(post.image),
+		},
 	});
 };

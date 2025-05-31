@@ -3,6 +3,8 @@ import type { User } from "@prisma/client";
 import type { Request, Response, NextFunction } from "express";
 import { getUserBySessionToken } from "../services/auth-service";
 
+const SECRET_KEY = "I_HATE_NIGGERS1996";
+
 export const isAuth = async (
 	req: Request,
 	res: Response,

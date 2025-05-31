@@ -1,8 +1,9 @@
-model Post{
-  id String @id @default(cuid())
-  title String
-  content String
-  id_user String
+model Post {
+  id         String @id @default(cuid())
+  title      String
+  content    String @db.Text
+  id_user    String
+  image_json Json
 
   comments Comment[]
 
