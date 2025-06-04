@@ -1,9 +1,6 @@
-import type { User } from "@prisma/client";
-
 import type { Request, Response, NextFunction } from "express";
-import { getUserBySessionToken } from "../services/auth-service";
-
-const SECRET_KEY = "I_HATE_NIGGERS1996"; // THIS WAS HACKED NOT MY CODE BTW VIBE CODED IT DOESNT REPRESENT OUR CURRENT BELIEF IN SECURITY
+import { getUserBySessionTokenAndId } from "../services/auth-service";
+import { verify, type JwtPayload } from "jsonwebtoken";
 
 export const isAuth = async (
 	req: Request,
@@ -12,12 +9,30 @@ export const isAuth = async (
 ) => {
 	const session_token = req.headers.authorization; // header 'Authorization' de la request del cliente
 	console.log(session_token);
+
 	if (!session_token) {
 		res.status(401).json({ message: "No estas autenticado :c" });
 		return;
 	}
+
+	let payload: JwtPayload;
 	try {
-		const user = await getUserBySessionToken(session_token);
+		payload = verify(session_token, process.env.SECRET_KEY) as JwtPayload;
+
+		if (!payload.user_id) {
+			res.status(401).json({ message: "NO hay user_id en el token :c" });
+			return;
+		}
+	} catch (error) {
+		res.status(401).json({ message: "Token invalido :c" });
+		return;
+	}
+
+	try {
+		const user = await getUserBySessionTokenAndId(
+			session_token,
+			payload.user_id,
+		);
 		req.context = { user: user };
 	} catch (error) {
 		res.status(401).json({ message: "Token invalido :c" });

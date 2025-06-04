@@ -3,7 +3,6 @@ import { authRouter } from "./routers/auth-router";
 import { commentRouter } from "./routers/comment-router";
 import { postRouter } from "./routers/post-router";
 import { userRouter } from "./routers/user-router";
-import { luaRouter } from "./routers/lua-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +14,6 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/lua", luaRouter);
 
 // Health check
 app.get("/health", (req, res) => {

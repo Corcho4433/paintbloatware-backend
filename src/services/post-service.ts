@@ -23,21 +23,6 @@ export const getPosts = async ({ page }: { page: number }) => {
 	});
 };
 
-export const getSourcecodeByPost = async (post_id: string) => {
-	try {
-		return await db.post.findFirst({
-			where: {
-				id: post_id,
-			},
-			select: {
-				content: true,
-			},
-		});
-	} catch (error) {
-		console.error(error);
-	}
-};
-
 export const getPostsByUser = async (userID: string) => {
 	return await db.post.findMany({
 		where: {

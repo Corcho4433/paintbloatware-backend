@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { sign } from "jsonwebtoken";
 import { db } from "../db/db";
 import { getUserByEmail } from "./user-service";
 
@@ -17,15 +17,23 @@ export const verifyUser = async (email: string, password: string) => {
 	return user;
 };
 
-const generateSessionToken = () => {
-	return randomUUID();
+const generateSessionToken = (user_id: string) => {
+	try {
+		const token = sign({ user_id }, process.env.SECRET_KEY);
+		return token;
+	} catch (error) {
+		throw new Error("Error al generar el token :c");
+	}
 };
 
-export const getUserBySessionToken = async (session_token: string) => {
+export const getUserBySessionTokenAndId = async (
+	session_token: string,
+	user_id: string,
+) => {
 	const user = db.user.findFirst({
 		where: {
 			sessions: {
-				some: { session_token },
+				some: { session_token, id_user: user_id },
 			},
 		},
 	});
@@ -36,7 +44,7 @@ export const getUserBySessionToken = async (session_token: string) => {
 };
 
 export const generateUserSession = async (id_user: string) => {
-	const session_token = generateSessionToken();
+	const session_token = generateSessionToken(id_user);
 	try {
 		await db.session.create({
 			data: { id_user, session_token },
