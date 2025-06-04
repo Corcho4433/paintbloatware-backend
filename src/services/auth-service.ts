@@ -30,7 +30,7 @@ export const getUserBySessionToken = async (session_token: string) => {
 		},
 	});
 	if (!user) {
-		throw new Error(`No hay un usuario con el token ${session_token}`);
+		throw new Error(`No hay un usuario con el tokend ${session_token}`);
 	}
 	return user;
 };

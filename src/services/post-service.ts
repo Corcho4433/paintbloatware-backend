@@ -1,9 +1,13 @@
 import type { Post } from "@prisma/client";
 import { db } from "../db/db";
 
-export const getPosts = async () => {
+export const getPosts = async ({ page }: { page: number }) => {
 	return await db.post.findMany({
-		include: {
+		skip: (page - 1) * 10,
+		take: 10,
+		select: {
+			image_json: true,
+			title: true,
 			user: {
 				select: {
 					name: true,
@@ -17,6 +21,21 @@ export const getPosts = async () => {
 			},
 		},
 	});
+};
+
+export const getSourcecodeByPost = async (post_id: string) => {
+	try {
+		return await db.post.findFirst({
+			where: {
+				id: post_id,
+			},
+			select: {
+				content: true,
+			},
+		});
+	} catch (error) {
+		console.error(error);
+	}
 };
 
 export const getPostsByUser = async (userID: string) => {
@@ -33,6 +52,7 @@ export const getPostsByUser = async (userID: string) => {
 		},
 	});
 };
+
 export const getPostById = async (PostID: string) => {
 	return await db.post.findFirst({
 		select: {
@@ -78,7 +98,7 @@ export const createPost = async (post: PostBody) => {
 			title: post.title,
 			content: post.content,
 			id_user: post.id_user,
-			image_json: JSON.parse(post.image),
+			image_json: post.image,
 		},
 	});
 };

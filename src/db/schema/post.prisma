@@ -3,7 +3,7 @@ model Post {
   title      String
   content    String @db.Text
   id_user    String
-  image_json Json
+  image_json String
 
   comments Comment[]
 

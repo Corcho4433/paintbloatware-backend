@@ -3,7 +3,7 @@ import type { User } from "@prisma/client";
 import type { Request, Response, NextFunction } from "express";
 import { getUserBySessionToken } from "../services/auth-service";
 
-const SECRET_KEY = "I_HATE_NIGGERS1996";
+const SECRET_KEY = "I_HATE_NIGGERS1996"; // THIS WAS HACKED NOT MY CODE BTW VIBE CODED IT DOESNT REPRESENT OUR CURRENT BELIEF IN SECURITY
 
 export const isAuth = async (
 	req: Request,

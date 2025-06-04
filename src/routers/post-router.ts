@@ -12,7 +12,9 @@ export const postRouter = express.Router();
 
 postRouter.get("/", async (req, res) => {
 	try {
-		const posts = await getPosts();
+		const page = Number.parseInt(req.query.page as string) || 1;
+
+		const posts = await getPosts({ page });
 		res.json({ posts: posts });
 	} catch (error) {
 		console.error(error);
