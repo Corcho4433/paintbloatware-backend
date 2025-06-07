@@ -28,7 +28,21 @@ authRouter.post("/login", async (req, res) => {
 		const { email, password } = body;
 		const user = await verifyUser(email, password);
 		const session_token = await generateUserSession(user.id);
+		//const refresh_token = await generateRefreshToken(user.id);
 		res.status(200).json({ data: session_token });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: (error as Error).message });
+	}
+});
+
+authRouter.post("/refresh", async (req, res) => {
+	try {
+		const { body } = req;
+		const { refresh_token } = body;
+
+
+		res.status(200).json({ data: null });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: (error as Error).message });

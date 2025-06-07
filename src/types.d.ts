@@ -4,6 +4,7 @@ declare global {
 	namespace NodeJS {
 		interface ProcessEnv {
 			SECRET_KEY: string;
+			SECRET_KEY_REFRESH: string;
 		}
 	}
 	namespace Express {

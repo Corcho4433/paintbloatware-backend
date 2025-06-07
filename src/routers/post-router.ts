@@ -6,7 +6,7 @@ import {
 	getPostsByUser,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
-import { isAuth } from "../utils/auth";
+import { isAuthMiddleware } from "../utils/auth";
 
 export const postRouter = express.Router();
 
@@ -48,7 +48,7 @@ postRouter.get("/:id", async (req, res) => {
 	}
 });
 
-postRouter.post("/", isAuth, async (req, res) => {
+postRouter.post("/", isAuthMiddleware, async (req, res) => {
 	try {
 		const post_body = req.body;
 		const user = req.context?.user;
@@ -60,7 +60,7 @@ postRouter.post("/", isAuth, async (req, res) => {
 	}
 });
 
-postRouter.post("/:id/comment", isAuth, async (req, res) => {
+postRouter.post("/:id/comment", isAuthMiddleware, async (req, res) => {
 	try {
 		const comment_body = req.body;
 		const user = req.context?.user;

@@ -1,10 +1,10 @@
 model Session{
   id String @id @default(cuid())
   id_user String
-  session_token String
+  refresh_token String @map("refresh_token")
   
   user User @relation(fields: [id_user], references: [id])
 
-  @@unique([id_user, session_token])
+  @@unique([id_user, refresh_token])
   @@map("sessions")
 }

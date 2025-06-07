@@ -17,18 +17,14 @@ export const verifyUser = async (email: string, password: string) => {
 	return user;
 };
 
-const generateSessionToken = (user_id: string) => {
-	try {
-		const token = sign({ user_id }, process.env.SECRET_KEY);
-		return token;
-	} catch (error) {
-		throw new Error("Error al generar el token :c");
-	}
+export const createPassword = async (password: string) => {
+	const password_hash = await Bun.password.hash(password);
+	return password_hash;
 };
 
-export const getUserBySessionTokenAndId = async (
-	session_token: string,
-	user_id: string,
+// Hay que revisar esto
+export const getUserByAccessToken = async (
+	session_token: string
 ) => {
 	const user = db.user.findFirst({
 		where: {
@@ -43,19 +39,34 @@ export const getUserBySessionTokenAndId = async (
 	return user;
 };
 
-export const generateUserSession = async (id_user: string) => {
-	const session_token = generateSessionToken(id_user);
+const generateAccessToken = (user_id: string) => {
 	try {
-		await db.session.create({
-			data: { id_user, session_token },
-		});
-		return session_token;
+		const token = sign({ user_id }, process.env.SECRET_KEY, { expiresIn: "15m" });
+		return token;
 	} catch (error) {
-		throw new Error("Error al crear la sesion :c");
+		throw new Error("Error al generar el token :c");
 	}
 };
 
-export const createPassword = async (password: string) => {
-	const password_hash = await Bun.password.hash(password);
-	return password_hash;
+const generateRefreshToken = async (user_id: string) => {
+	try {
+		const refresh_token = sign({ user_id }, process.env.SECRET_KEY_REFRESH, { expiresIn: "30d" });
+		await db.session.create({
+			data: { id_user: user_id, refresh_token },
+		});
+		return refresh_token;
+	} catch (error) {
+		throw new Error("Error al generar el refresh token :c");
+	}
+};
+
+export const generateUserSession = async (id_user: string) => {
+
+	try {
+		const session_token = generateAccessToken(id_user);
+		const refresh_token = await generateRefreshToken(id_user);
+		return { session_token, refresh_token };
+	} catch (error) {
+		throw new Error("Error al crear la sesion :c");
+	}
 };
