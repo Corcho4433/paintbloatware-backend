@@ -1,7 +1,9 @@
 import express from "express";
 import {
 	createPassword,
+	deleteLastSession,
 	generateUserSession,
+	verifyRefreshToken,
 	verifyUser,
 } from "../services/auth-service";
 import { createUser } from "../services/user-service";
@@ -27,9 +29,8 @@ authRouter.post("/login", async (req, res) => {
 		const { body } = req;
 		const { email, password } = body;
 		const user = await verifyUser(email, password);
-		const session_token = await generateUserSession(user.id);
-		//const refresh_token = await generateRefreshToken(user.id);
-		res.status(200).json({ data: session_token });
+		const { session_token, refresh_token } = await generateUserSession(user.id);
+		res.status(200).json({ data: { session_token, refresh_token } }); // TODO: Devolver en cookies
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: (error as Error).message });
@@ -41,10 +42,17 @@ authRouter.post("/refresh", async (req, res) => {
 		const { body } = req;
 		const { refresh_token } = body;
 
+		const user = await verifyRefreshToken(refresh_token);
+		if (!user) throw new Error("No se pudo verificar el refresh token :c");
 
-		res.status(200).json({ data: null });
+		const { session_token, refresh_token: new_refresh_token } = await generateUserSession(user.id);
+
+		await deleteLastSession(user.id, refresh_token);
+
+		res.status(200).json({ data: { session_token, refresh_token: new_refresh_token } }); // TODO: Devolver en cookies
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: (error as Error).message });
 	}
 });
+

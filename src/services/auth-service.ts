@@ -1,4 +1,4 @@
-import { sign } from "jsonwebtoken";
+import { sign, TokenExpiredError, verify, type JwtPayload } from "jsonwebtoken";
 import { db } from "../db/db";
 import { getUserByEmail } from "./user-service";
 
@@ -22,26 +22,9 @@ export const createPassword = async (password: string) => {
 	return password_hash;
 };
 
-// Hay que revisar esto
-export const getUserByAccessToken = async (
-	session_token: string
-) => {
-	const user = db.user.findFirst({
-		where: {
-			sessions: {
-				some: { session_token, id_user: user_id },
-			},
-		},
-	});
-	if (!user) {
-		throw new Error(`No hay un usuario con el tokend ${session_token}`);
-	}
-	return user;
-};
-
 const generateAccessToken = (user_id: string) => {
 	try {
-		const token = sign({ user_id }, process.env.SECRET_KEY, { expiresIn: "15m" });
+		const token = sign({ user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 		return token;
 	} catch (error) {
 		throw new Error("Error al generar el token :c");
@@ -50,10 +33,12 @@ const generateAccessToken = (user_id: string) => {
 
 const generateRefreshToken = async (user_id: string) => {
 	try {
-		const refresh_token = sign({ user_id }, process.env.SECRET_KEY_REFRESH, { expiresIn: "30d" });
+		const refresh_token = sign({ user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
+		
 		await db.session.create({
 			data: { id_user: user_id, refresh_token },
 		});
+
 		return refresh_token;
 	} catch (error) {
 		throw new Error("Error al generar el refresh token :c");
@@ -61,12 +46,52 @@ const generateRefreshToken = async (user_id: string) => {
 };
 
 export const generateUserSession = async (id_user: string) => {
-
 	try {
 		const session_token = generateAccessToken(id_user);
 		const refresh_token = await generateRefreshToken(id_user);
 		return { session_token, refresh_token };
 	} catch (error) {
 		throw new Error("Error al crear la sesion :c");
+	}
+};
+
+export const deleteLastSession = async (id_user: string, refresh_token: string) => {
+	await db.session.deleteMany({
+		where: {
+			id_user,
+			refresh_token,
+		},
+	});
+};
+
+export const verifyRefreshToken = async (refresh_token: string) => {
+	try {
+
+		let payload: JwtPayload;
+		try {
+			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
+	
+			if (!payload.user_id) {
+				throw new Error("NO hay user_id en el token :c");
+			}
+		} catch (error) {
+			if (error instanceof TokenExpiredError) {
+				throw new Error("Token expirado :c");
+			}
+		
+			throw new Error("Token invalido :c");
+		}
+
+		const user = await db.user.findFirst({
+			where: {
+				sessions: {
+					some: { refresh_token, id_user: payload.user_id },
+				}
+			},
+		});
+
+		return user;
+	} catch (error) {
+		throw new Error((error as Error).message);
 	}
 };
