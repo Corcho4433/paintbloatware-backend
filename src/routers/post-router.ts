@@ -6,7 +6,7 @@ import {
 	getPostsByUser,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
-import { isAuthMiddleware } from "../utils/auth";
+import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 
 export const postRouter = express.Router();
 
@@ -51,8 +51,8 @@ postRouter.get("/:id", async (req, res) => {
 postRouter.post("/", isAuthMiddleware, async (req, res) => {
 	try {
 		const post_body = req.body;
-		const user = req.context?.user;
-		const post = await createPost({ id_user: user.id as string, ...post_body });
+		const user = req.user as UserFromToken;
+		const post = await createPost({ id_user: user.id, ...post_body });
 		res.json({ post: post });
 	} catch (error) {
 		console.error(error);
@@ -63,9 +63,9 @@ postRouter.post("/", isAuthMiddleware, async (req, res) => {
 postRouter.post("/:id/comment", isAuthMiddleware, async (req, res) => {
 	try {
 		const comment_body = req.body;
-		const user = req.context?.user;
+		const user = req.user as UserFromToken;
 		const comment = await createComment({
-			id_user: user.id as string,
+			id_user: user.id,
 			...comment_body,
 		});
 		res.json({ comment: comment });
