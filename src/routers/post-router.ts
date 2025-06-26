@@ -51,7 +51,8 @@ postRouter.get("/:id", async (req, res) => {
 postRouter.post("/", isAuthMiddleware, async (req, res) => {
 	try {
 		const post_body = req.body;
-		const user = req.user as UserFromToken;
+		const user = req.user!;
+		console.log(user)
 		const post = await createPost({ id_user: user.id, ...post_body });
 		res.json({ post: post });
 	} catch (error) {
