@@ -6,6 +6,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 		skip: (page - 1) * 10,
 		take: 10,
 		select: {
+			id: true,
 			image_json: true,
 			title: true,
 			user: {

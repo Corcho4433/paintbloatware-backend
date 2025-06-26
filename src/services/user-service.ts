@@ -1,5 +1,11 @@
 import { db } from "../db/db";
 
+
+interface UserBody {
+	email: string
+	name: string
+	password_hash: string
+}
 export const getUsers = async () => {
 	return await db.user.findMany();
 };
@@ -24,14 +30,11 @@ export const getUserByEmail = async (email: string) => {
 	return user;
 };
 
-export const createUser = async (
-	email: string,
-	name: string,
-	password_hash: string,
-) => {
+export const createUser = async (userBody: UserBody) => {
 	try {
+		userBody.email
 		const user = await db.user.create({
-			data: { email, name, password: password_hash },
+			data: { email: userBody.email, name: userBody.name, password: userBody.password_hash },
 		});
 		return user;
 	} catch (error) {

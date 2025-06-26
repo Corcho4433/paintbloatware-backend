@@ -1,5 +1,10 @@
-import type { Comment } from "@prisma/client";
 import { db } from "../db/db";
+
+interface CommentBody {
+	id_user: string
+	id_post: string
+	content: string
+}
 
 export const getCommentById = async (commentID: string) => {
 	return await db.comment.findFirst({
@@ -25,8 +30,12 @@ export const getCommentsByUser = async (userID: string) => {
 	});
 };
 
-export const createComment = async (comment: Comment) => {
+export const createComment = async (comment: CommentBody) => {
 	return await db.comment.create({
-		data: comment,
+		data: {
+			id_post: comment.id_post,
+			id_user: comment.id_user,
+			content: comment.content
+		},
 	});
 };
