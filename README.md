@@ -7,8 +7,11 @@ bun install
 ```
 
 Para levantar la base de datos:
+
 - Instalar docker-compose
 - start y enable docker
 - sudo docker-compose up -d
-- bunx drizzle-kit migrate
-- bun seed
+- bun run migrate
+- bun run generate
+- bun run seed
+- bun run dev

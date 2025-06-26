@@ -27,6 +27,7 @@ const generateAccessToken = (user_id: string) => {
 		const token = sign({ user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 		return token;
 	} catch (error) {
+		console.log(error)
 		throw new Error("Error al generar el token :c");
 	}
 };
@@ -41,6 +42,7 @@ const generateRefreshToken = async (user_id: string) => {
 
 		return refresh_token;
 	} catch (error) {
+		console.log(error)
 		throw new Error("Error al generar el refresh token :c");
 	}
 };
@@ -51,6 +53,7 @@ export const generateUserSession = async (id_user: string) => {
 		const refresh_token = await generateRefreshToken(id_user);
 		return { session_token, refresh_token };
 	} catch (error) {
+		console.log(error)
 		throw new Error("Error al crear la sesion :c");
 	}
 };

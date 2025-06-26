@@ -35,6 +35,7 @@ export const createUser = async (
 		});
 		return user;
 	} catch (error) {
+		console.log(error)
 		throw new Error("Error al crear el usuario :c");
 	}
 };
