@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 
 
-interface UserBody {
+export interface UserBody {
 	email: string
 	name: string
 	password_hash: string
