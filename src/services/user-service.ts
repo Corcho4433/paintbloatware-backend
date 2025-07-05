@@ -1,11 +1,13 @@
 import { db } from "../db/db";
 
 
-interface UserBody {
+export interface UserBody {
 	email: string
 	name: string
 	password_hash: string
 }
+
+
 export const getUsers = async () => {
 	return await db.user.findMany();
 };

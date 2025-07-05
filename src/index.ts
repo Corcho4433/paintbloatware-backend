@@ -3,6 +3,7 @@ import { authRouter } from "./routers/auth-router";
 import { commentRouter } from "./routers/comment-router";
 import { postRouter } from "./routers/post-router";
 import { userRouter } from "./routers/user-router";
+import { errorHandler, notFoundHandler } from "./errors/error_middleware";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,9 @@ app.get("/health", (req, res) => {
 		console.log(error);
 	}
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {

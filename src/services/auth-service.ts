@@ -2,6 +2,8 @@ import { sign, TokenExpiredError, verify, type JwtPayload } from "jsonwebtoken";
 import { db } from "../db/db";
 import { getUserByEmail } from "./user-service";
 
+
+
 export const verifyUser = async (email: string, password: string) => {
 	const user = await getUserByEmail(email);
 
@@ -9,7 +11,7 @@ export const verifyUser = async (email: string, password: string) => {
 
 	const is_match = await Bun.password.verify(password, user.password);
 	if (!is_match) {
-		throw new Error("La contraseña no coincide aprende a escribir :v");
+		return; //throw new Error("La contraseña no coincide aprende a escribir :v");
 	}
 
 	console.log("match: ", is_match);
