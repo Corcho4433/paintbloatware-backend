@@ -1,4 +1,39 @@
 {
+<<<<<<< HEAD
+	"name": "paintbloatware-backend",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"seed": "bun run src/db/seed.ts",
+		"resetdb": "bun run src/utils/db.ts resetDatabase",
+		"migrate": "prisma migrate dev --schema src/db/schema",
+		"generate": "prisma generate --no-engine --schema src/db/schema"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/bun": "latest",
+		"@types/node": "^22.13.14",
+		"tsx": "^4.19.3"
+	},
+	"peerDependencies": {
+		"typescript": "^5.8.2"
+	},
+	"dependencies": {
+		"@prisma/client": "^6.8.2",
+		"@types/express": "^5.0.1",
+		"@types/jsonwebtoken": "^9.0.9",
+		"@types/pg": "^8.11.11",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"jsonwebtoken": "^9.0.2",
+		"pg": "^8.14.1",
+		"postgres": "^3.4.5",
+		"prisma": "^6.7.0"
+	}
+}
+=======
   "name": "paintbloatware-backend",
   "module": "index.ts",
   "type": "module",
@@ -29,3 +64,4 @@
     "postgres": "^3.4.5"
   }
 }
+>>>>>>> master
