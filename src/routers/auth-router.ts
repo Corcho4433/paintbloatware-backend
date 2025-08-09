@@ -65,6 +65,7 @@ authRouter.post("/login", async (req, res, next) => {
 			.json({ success: true });
 	} catch (error) {
 		next(error);
+
 	}
 });
 

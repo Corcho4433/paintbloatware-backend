@@ -2,6 +2,8 @@ import { ServerError, NotFound } from "./server_errors";
 import { type NextFunction, type Request, type Response } from "express";
 
 export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction): void => {
+
+
   if (error instanceof ServerError) {
     res.status(error.error_code).json({
       success: false,
@@ -11,8 +13,10 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
         type: error.constructor.name
       }
     });
+    console.error(`Error handled: ${error.message} (Code: ${error.error_code})`);
 
-    return
+    next();
+    return;
   }
 }
 
