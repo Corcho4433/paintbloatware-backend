@@ -7,6 +7,7 @@ model User {
   posts    Post[]
   comments Comment[]
   sessions Session[]
+  ratings  Ratings[]
 
   @@map("users")
 }

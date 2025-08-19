@@ -1,0 +1,9 @@
+model Ratings {
+  id        String   @id @default(cuid())
+  value     Int
+  id_user   String
+  id_post   String
+
+  post Post @relation(fields: [id_post], references: [id])
+  user User @relation(fields: [id_user], references: [id])
+}

@@ -1,13 +1,18 @@
 model Post {
-  id         String @id @default(cuid())
+  id         String   @id @default(cuid())
   title      String
-  content    String @db.Text
+  content    String   @db.Text
   id_user    String
   image_json String
+  height     Int
+  width      Int
+  version    String
+  created_at DateTime @default(now())
 
   comments Comment[]
 
   user User @relation(fields: [id_user], references: [id])
+  ratings Ratings[]
 
   @@map("posts")
 }
