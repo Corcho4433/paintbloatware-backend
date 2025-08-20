@@ -3,7 +3,7 @@ model Post {
   title      String
   content    String   @db.Text
   id_user    String
-  image_json String
+  url_bucket String
   height     Int
   width      Int
   version    String
