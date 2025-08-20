@@ -6,4 +6,6 @@ model Ratings {
 
   post Post @relation(fields: [id_post], references: [id])
   user User @relation(fields: [id_user], references: [id])
+
+  @@map("ratings")
 }
