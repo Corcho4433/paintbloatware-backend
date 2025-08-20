@@ -7,7 +7,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 		take: 10,
 		select: {
 			id: true,
-			image_json: true,
+			url_bucket: true,
 			title: true,
 			user: {
 				select: {
@@ -45,7 +45,7 @@ export const getPostById = async (PostID: string) => {
 			id: true,
 			title: true,
 			content: true,
-			image_json: true,
+			url_bucket: true,
 			user: {
 				select: {
 					name: true,
@@ -74,7 +74,7 @@ export const getPostById = async (PostID: string) => {
 interface PostBody {
 	title: string;
 	content: string;
-	image: string;
+	url_bucket: string;
 	id_user: string;
 }
 
@@ -84,7 +84,10 @@ export const createPost = async (post: PostBody) => {
 			title: post.title,
 			content: post.content,
 			id_user: post.id_user,
-			image_json: post.image,
+			height: 0,
+			width: 0,
+			version: "1.0.0",
+			url_bucket: post.url_bucket,
 		},
 	});
 };
