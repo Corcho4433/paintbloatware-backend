@@ -5,6 +5,8 @@ import { postRouter } from "./routers/post-router";
 import { userRouter } from "./routers/user-router";
 import { errorHandler, notFoundHandler } from "./errors/error_middleware";
 import cors from "cors";
+import MinioClientSingleton from "./minio/minio-client";
+import { setupMinioBucket } from "./minio/minio-setup";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,3 +43,29 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+async function setupBucket() {
+  try {
+    await setupMinioBucket();
+    console.log('Bucket de MinIO configurado correctamente.');
+    // ...inicializar Express, DB, etc.
+  } catch (error) {
+    console.error('Error crítico durante configuración de MinIO');
+    process.exit(1);
+  }
+}
+
+setupBucket();
+
+const minioClient = MinioClientSingleton.getInstance();
+
+async function testConnection() {
+  try {
+    const buckets = await minioClient.listBuckets();
+    console.log("Buckets:", buckets);
+  } catch (err) {
+    console.error("Error connecting to MinIO:", err);
+  }
+}
+
+testConnection();
