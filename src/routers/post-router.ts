@@ -17,13 +17,12 @@ postRouter.get("/", async (req, res, next) => {
 		const page = Number.parseInt(req.query.page as string) || 1;
 		const posts = await getPosts({ page });
 		if (!posts) {
-			throw new NotFound("No se encontraron posts para este")
+			throw new NotFound("No se encontraron posts para este");
 		}
 
 		res.status(200).json({ posts: posts });
 	} catch (error) {
 		console.log(error);
-
 	}
 });
 
@@ -32,12 +31,12 @@ postRouter.get("/user/:id", async (req, res, next) => {
 		const id_user = req.params.id;
 		const posts = await getPostsByUser(id_user);
 		if (!posts) {
-			throw new BadRequest("Ese usuario no tiene posts")
+			throw new BadRequest("Ese usuario no tiene posts");
 		}
 
 		res.status(200).json({ posts: posts });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });
 
@@ -47,12 +46,12 @@ postRouter.get("/:id", async (req, res, next) => {
 		const post = await getPostById(id);
 
 		if (!post) {
-			throw new BadRequest("Ese post no existe")
+			throw new BadRequest("Ese post no existe");
 		}
 
 		res.status(200).json({ post: post });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });
 
@@ -73,7 +72,7 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 
 		res.status(200).json({ post: post });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });
 
@@ -89,7 +88,7 @@ postRouter.post("/:id/comment", isAuthMiddleware, async (req, res, next) => {
 
 		res.status(200).json({ comment: comment });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });
 
@@ -103,7 +102,7 @@ postRouter.get("/:id/ratings", async (req, res, next) => {
 
 		res.status(200).json({ ratings: ratings });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });
 
@@ -125,6 +124,6 @@ postRouter.post("/:id/ratings", isAuthMiddleware, async (req, res, next) => {
 
 		res.status(200).json({ rating: rating });
 	} catch (error) {
-		next(error)
+		next(error);
 	}
 });

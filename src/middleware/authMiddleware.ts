@@ -17,7 +17,10 @@ export const isAuthMiddleware = async (
 
 	let payload: JwtPayload;
 	try {
-		payload = verify(access_token, process.env.ACCESS_TOKEN_SECRET) as JwtPayload;
+		payload = verify(
+			access_token,
+			process.env.ACCESS_TOKEN_SECRET,
+		) as JwtPayload;
 
 		if (!payload.user_id) {
 			res.status(401).json({ message: "NO hay user_id en el token :c" });
@@ -34,7 +37,7 @@ export const isAuthMiddleware = async (
 	}
 
 	try {
-		req.user =  {id: payload.user_id};
+		req.user = { id: payload.user_id };
 	} catch (error) {
 		res.status(401).json({ message: "Token invalido :c" });
 		return;

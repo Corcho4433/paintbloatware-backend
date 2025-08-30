@@ -10,17 +10,20 @@ import { setupMinioBucket } from "./minio/minio-setup";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const minioClient = MinioClientSingleton.getInstance();
 
 app.use(express.json());
 
 // Configuración CORS corregida para manejar cookies
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // ✅ IMPORTANTE: Permite cookies y credenciales
-  optionsSuccessStatus: 200 // Para navegadores legacy
-}));
+app.use(
+	cors({
+		origin: "http://localhost:5173",
+		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
+		credentials: true, // ✅ IMPORTANTE: Permite cookies y credenciales
+		optionsSuccessStatus: 200, // Para navegadores legacy
+	}),
+);
 
 // Routes
 app.use("/api/users", userRouter);
@@ -30,42 +33,48 @@ app.use("/api/auth", authRouter);
 
 // Health check
 app.get("/health", (req, res) => {
-  try {
-    res.json({ status: "healthy" });
-  } catch (error) {
-    console.log(error);
-  }
+	try {
+		res.json({ status: "healthy" });
+	} catch (error) {
+		console.log(error);
+	}
 });
 
 app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+	console.log(`Server running on http://localhost:${PORT}`);
 });
 
 async function setupBucket() {
-  try {
-    await setupMinioBucket();
-    console.log('Bucket de MinIO configurado correctamente.');
-    // ...inicializar Express, DB, etc.
-  } catch (error) {
-    console.error('Error crítico durante configuración de MinIO');
-    process.exit(1);
-  }
+	try {
+		await setupMinioBucket();
+		console.log("Bucket de MinIO configurado correctamente.");
+		// ...inicializar Express, DB, etc.
+	} catch (error) {
+		console.error("Error crítico durante configuración de MinIO");
+		process.exit(1);
+	}
 }
 
 setupBucket();
 
-const minioClient = MinioClientSingleton.getInstance();
-
 async function testConnection() {
-  try {
-    const buckets = await minioClient.listBuckets();
-    console.log("Buckets:", buckets);
-  } catch (err) {
-    console.error("Error connecting to MinIO:", err);
-  }
+	try {
+		const buckets = await minioClient.listBuckets();
+		console.log("Buckets:", buckets);
+		/* 		await minioClient.fPutObject(
+			"images",
+			"test.jpg",
+			"/home/corcho/Desktop/rek.jpg",
+		);
+		const url = `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/images/test.jpg`;
+		console.log("URL:", url);
+		return url; */
+	} catch (err) {
+		console.error("Error connecting to MinIO:", err);
+	}
 }
 
 testConnection();
