@@ -64,14 +64,14 @@ async function testConnection() {
 	try {
 		const buckets = await minioClient.listBuckets();
 		console.log("Buckets:", buckets);
-		/* 		await minioClient.fPutObject(
+		await minioClient.fPutObject(
 			"images",
 			"test.jpg",
-			"/home/corcho/Desktop/rek.jpg",
+			"/home/corcho/Desktop/bobi.jpg",
 		);
 		const url = `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/images/test.jpg`;
 		console.log("URL:", url);
-		return url; */
+		return url;
 	} catch (err) {
 		console.error("Error connecting to MinIO:", err);
 	}
