@@ -1,13 +1,12 @@
 model User {
-  id       String @id @default(cuid())
+  id       String    @id @default(cuid())
   name     String
-  email    String @unique
+  email    String    @unique
   password String
-
-  posts    Post[]
   comments Comment[]
-  sessions Session[]
+  posts    Post[]
   ratings  Ratings[]
+  sessions Session[]
 
   @@map("users")
 }
