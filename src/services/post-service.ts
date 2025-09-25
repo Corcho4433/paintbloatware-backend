@@ -9,6 +9,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 			id: true,
 			url_bucket: true,
 			title: true,
+			content: true,
 			user: {
 				select: {
 					name: true,
