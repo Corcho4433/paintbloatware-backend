@@ -17,6 +17,10 @@ export const getUserById = async (UserID: string) => {
 		where: {
 			id: UserID,
 		},
+		select: {
+			id: true,
+			name: true,
+		}
 	});
 };
 
