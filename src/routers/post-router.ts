@@ -34,7 +34,8 @@ postRouter.get("/", async (req, res, next) => {
 postRouter.get("/user/:id", async (req, res, next) => {
 	try {
 		const id_user = req.params.id;
-		const posts = await getPostsByUser(id_user);
+		const page = Number.parseInt(req.query.page as string) || 1;
+		const posts = await getPostsByUser({ userID: id_user, page });
 		if (!posts) {
 			throw new BadRequest("Ese usuario no tiene posts");
 		}
