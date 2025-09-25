@@ -24,12 +24,23 @@ export const getPosts = async ({ page }: { page: number }) => {
 	});
 };
 
-export const getPostsByUser = async (userID: string) => {
+export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
 	return await db.post.findMany({
 		where: {
 			id_user: userID,
 		},
-		include: {
+		skip: (page - 1) * 10,
+		take: 10,
+		select: {
+			id: true,
+			url_bucket: true,
+			title: true,
+			user: {
+				select: {
+					name: true,
+					id: true,
+				},
+			},
 			_count: {
 				select: {
 					comments: true,
