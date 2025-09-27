@@ -119,13 +119,19 @@ export const createPost = async (post: PostBody) => {
 	console.log("ohio post:", postResult);
 
 	if (!postResult) {
-		return;
+		throw new Error("Failed to create post");
 	}
 	
-	return db.tagsForPost.createMany({
-		data: tags.map((tag) => ({
-			id_post: postResult.id,
-			id_tag: tag,
-		})),
-	})
+	// Create tag relationships if tags exist
+	if (tags && tags.length > 0) {
+		await db.tagsForPost.createMany({
+			data: tags.map((tag) => ({
+				id_post: postResult.id,
+				id_tag: tag,
+			})),
+		});
+	}
+
+	// Return the created post
+	return postResult;
 };
