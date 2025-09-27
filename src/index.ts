@@ -5,6 +5,7 @@ import { postRouter } from "./routers/post-router";
 import { userRouter } from "./routers/user-router";
 import { errorHandler, notFoundHandler } from "./errors/error_middleware";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import MinioClientSingleton from "./minio/minio-client";
 import { setupMinioBucket } from "./minio/minio-setup";
 
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 const minioClient = MinioClientSingleton.getInstance();
 
 app.use(express.json());
+app.use(cookieParser()); // 🍪 Middleware para parsear cookies
 
 // Configuración CORS corregida para manejar cookies
 app.use(

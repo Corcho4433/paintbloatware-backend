@@ -4,9 +4,8 @@
 	"type": "module",
 	"private": true,
 	"prisma": {
-    "schema": "src/db/schema"
-		
-  },
+		"schema": "src/db/schema"
+	},
 	"scripts": {
 		"dev": "bun run --hot src/index.ts ",
 		"resetdb": "bun run src/utils/db.ts resetDatabase",
@@ -25,10 +24,12 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^6.8.2",
+		"@types/cookie-parser": "^1.4.9",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.1",
 		"@types/jsonwebtoken": "^9.0.9",
 		"@types/pg": "^8.11.11",
+		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.1",
 		"express": "^4.21.2",
