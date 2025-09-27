@@ -6,7 +6,7 @@ interface PostBody {
 	image: string;
 	description: string;
 	tags: string[];
-	user_id: string;
+	id_user: string;
 }
 
 export const getPosts = async ({ page }: { page: number }) => {
@@ -105,13 +105,14 @@ export const getPostById = async (PostID: string) => {
 
 export const createPost = async (post: PostBody) => {
 	const { tags } = post;
+	console.log("post: ", post);
 
 	console.log("tags: ", tags);
 	const postResult = await db.post.create({
 		data: {
 			description: post.description,
 			content: post.source,
-			id_user: post.user_id,
+			id_user: post.id_user,
 			url_bucket: post.image,
 		},
 	});
