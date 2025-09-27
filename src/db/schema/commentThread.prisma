@@ -1,11 +1,11 @@
 model CommentThread {
-  id      String @id @default(cuid())
-  content String @db.Text
-  id_user String
+  id         String @id @default(cuid())
+  content    String @db.Text
+  id_user    String
   id_comment String
 
-  user User @relation(fields: [id_user], references: [id])
-  comment Comment @relation(fields: [id_comment], references: [id])
+  user    User    @relation(fields: [id_user], references: [id])
+  comment Comment @relation(fields: [id_comment], references: [id])<
 
   @@map("comment_threads")
 }

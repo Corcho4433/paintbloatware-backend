@@ -3,12 +3,16 @@
 	"module": "index.ts",
 	"type": "module",
 	"private": true,
+	"prisma": {
+    "schema": "src/db/schema"
+		
+  },
 	"scripts": {
-		"dev": "bun run --hot src/index.ts",
-		"seed": "bun run src/db/seed.ts",
+		"dev": "bun run --hot src/index.ts ",
 		"resetdb": "bun run src/utils/db.ts resetDatabase",
 		"migrate": "prisma migrate dev --schema src/db/schema",
-		"generate": "prisma generate --no-engine --schema src/db/schema"
+		"generate": "prisma generate --no-engine --schema src/db/schema",
+		"seed": "bun run src/db/seed.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

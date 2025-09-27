@@ -1,20 +1,23 @@
-import { db  } from "./db";
+import { PrismaClient } from "@prisma/client";
+
+const db = new PrismaClient();
 
 async function main() {
   // Crear usuarios
-  const user1 = await db.user.create({
-    data: {
-      name: 'Benicio Verdun',
-      email: 'benicio@example.com',
-      password: 'hashedpassword123', // En la práctica, esto debería estar hasheado
-    },
-  });
+  
 
   const user2 = await db.user.create({
     data: {
       name: 'Renata Velázquez',
       email: 'renata@example.com',
       password: 'hashedpassword456',
+    },
+  });
+  const user1 = await db.user.create({
+    data: {
+      name: 'Benicio Verdun',
+      email: 'benicio@example.com',
+      password: 'hashedpassword123', // En la práctica, esto debería estar hasheado
     },
   });
 
@@ -24,18 +27,25 @@ async function main() {
       title: 'Mi primer post',
       content: 'Contenido interesante del post.',
       id_user: user1.id,
-      image_json: JSON.stringify({ url: 'https://example.com/image1.jpg' }),
+      url_bucket: JSON.stringify({ url: 'https://localhost:9000/image1.jpg' }),
+      height: 512,
+      width: 512,
+      version: "v1",
     },
   });
 
-  const post2 = await db.post.create({
-    data: {
+const post2 = await db.post.create({
+  data: {
       title: 'Reflexiones de la noche',
       content: 'Pensamientos antes de dormir.',
       id_user: user2.id,
-      image_json: JSON.stringify({ url: 'https://example.com/image2.jpg' }),
+      url_bucket: JSON.stringify({ url: 'https://localhost:9000/image2.jpg' }),
+      height: 512,
+      width: 512,
+      version: "v1",
     },
   });
+
 
   // Crear comentarios
   await db.comment.create({

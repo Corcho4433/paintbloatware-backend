@@ -31,6 +31,7 @@ class MinioClientSingleton {
 				accessKey: MINIO_ROOT_USER,
 				secretKey: MINIO_ROOT_PASSWORD,
 			});
+			console.log("MinIO cliente instanciado");
 		}
 		return MinioClientSingleton.instance;
 	}

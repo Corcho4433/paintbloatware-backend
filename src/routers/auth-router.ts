@@ -62,7 +62,7 @@ authRouter.post("/login", async (req, res, next) => {
 				maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
 			})
 			.status(200)
-			.json({ success: true });
+			.json({ id: user.id, name: user.name, email: user.email, success: true });
 	} catch (error) {
 		next(error);
 	}
