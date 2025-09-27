@@ -105,6 +105,8 @@ export const getPostById = async (PostID: string) => {
 
 export const createPost = async (post: PostBody) => {
 	const { tags } = post;
+
+	console.log("tags: ", tags);
 	const postResult = await db.post.create({
 		data: {
 			description: post.description,
@@ -113,6 +115,8 @@ export const createPost = async (post: PostBody) => {
 			url_bucket: post.image,
 		},
 	});
+
+	console.log("ohio post:", postResult);
 
 	if (!postResult) {
 		return;

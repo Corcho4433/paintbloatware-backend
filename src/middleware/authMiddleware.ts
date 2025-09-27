@@ -8,20 +8,16 @@ export const isAuthMiddleware = async (
 ) => {
 	const auth_header = req.headers.authorization; // header 'Authorization' de la request del cliente
 	const access_token_from_header = auth_header?.split(" ")[1];
-	const access_token_from_cookie = req.cookies?.session_token; // 🍪 Token desde cookies
-
-	console.log("🍪 Cookies:", req.cookies);
-	console.log("📋 Header Authorization:", auth_header);
+	const access_token = req.cookies?.session_token; // 🍪 Token desde cookies
 
 	// Priorizar token del header, pero usar cookie como fallback
-	const access_token = access_token_from_header || access_token_from_cookie;
+	// const access_token = access_token_from_header || access_token_from_cookie;
 
 	if (!access_token) {
 		res.status(401).json({ 
 			message: "No estas autenticado :c",
 			debug: {
-				headerToken: !!access_token_from_header,
-				cookieToken: !!access_token_from_cookie,
+				token: access_token,
 				cookies: req.cookies
 			}
 		});
