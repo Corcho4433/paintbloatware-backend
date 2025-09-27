@@ -7,8 +7,9 @@ export const isAuthMiddleware = async (
 	next: NextFunction,
 ) => {
 	const auth_header = req.headers.authorization; // header 'Authorization' de la request del cliente
-
 	const access_token = auth_header?.split(" ")[1];
+
+	console.log(req.cookies);
 
 	if (!access_token) {
 		res.status(401).json({ message: "No estas autenticado :c" });

@@ -1,0 +1,10 @@
+model TagsForPost {
+  id      String @id @default(cuid())
+  id_tag  String
+  id_post String
+
+  post Post @relation(fields: [id_post], references: [id])
+  tag  Tags @relation(fields: [id_tag], references: [id])
+
+  @@map("tagsForPost")
+}

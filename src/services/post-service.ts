@@ -1,6 +1,14 @@
 import type { Post } from "@prisma/client";
 import { db } from "../db/db";
 
+interface PostBody {
+	source: string;
+	image: string;
+	description: string;
+	tags: string[];
+	user_id: string;
+}
+
 export const getPosts = async ({ page }: { page: number }) => {
 	const pageSize = 10;
 	
@@ -94,20 +102,26 @@ export const getPostById = async (PostID: string) => {
 	});
 };
 
-interface PostBody {
-	content: string;
-	url_bucket: string;
-	id_user: string;
-	description: string;
-}
 
 export const createPost = async (post: PostBody) => {
-	return await db.post.create({
+	const { tags } = post;
+	const postResult = await db.post.create({
 		data: {
 			description: post.description,
-			content: post.content,
-			id_user: post.id_user,
-			url_bucket: post.url_bucket,
+			content: post.source,
+			id_user: post.user_id,
+			url_bucket: post.image,
 		},
 	});
+
+	if (!postResult) {
+		return;
+	}
+	
+	return db.tagsForPost.createMany({
+		data: tags.map((tag) => ({
+			id_post: postResult.id,
+			id_tag: tag,
+		})),
+	})
 };

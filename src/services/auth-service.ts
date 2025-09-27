@@ -7,8 +7,6 @@ import { getUserByEmail } from "./user-service";
 export const verifyUser = async (email: string, password: string) => {
 	const user = await getUserByEmail(email);
 
-	console.log("user by email: ", user);
-
 	const is_match = await Bun.password.verify(password, user.password);
 	if (!is_match) {
 		return; //throw new Error("La contraseña no coincide aprende a escribir :v");

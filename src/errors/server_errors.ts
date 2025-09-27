@@ -3,7 +3,6 @@ export class ServerError extends Error {
   
   constructor(message: string, error_code?: number) {
     super(message);
-    // ✅ Corregido: usa el error_code proporcionado o 500 por defecto
     this.error_code = error_code ?? 500;
     this.name = this.constructor.name;
   }

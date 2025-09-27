@@ -71,6 +71,7 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 		}
 
 		const post = await createPost({ id_user: user.id, ...post_body });
+		console.log(post);
 
 		if (!post) {
 			throw new BadRequest("No se pudo crear el post");
