@@ -8,9 +8,11 @@ model Post {
   // width      Int
   edited      Boolean  @default(false)
   created_at  DateTime @default(now())
+  id_tag      String
 
   comments Comment[]
 
+  tags    Tags      @relation(fields: [id_tag], references: [id])
   user    User      @relation(fields: [id_user], references: [id])
   ratings Ratings[]
 

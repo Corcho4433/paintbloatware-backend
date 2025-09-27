@@ -11,7 +11,6 @@ export const getPosts = async ({ page }: { page: number }) => {
 			select: {
 				id: true,
 				url_bucket: true,
-				title: true,
 				content: true,
 				user: {
 					select: {
@@ -49,7 +48,6 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 		select: {
 			id: true,
 			url_bucket: true,
-			title: true,
 			user: {
 				select: {
 					name: true,
@@ -69,7 +67,6 @@ export const getPostById = async (PostID: string) => {
 	return await db.post.findFirst({
 		select: {
 			id: true,
-			title: true,
 			content: true,
 			url_bucket: true,
 			user: {
@@ -98,21 +95,18 @@ export const getPostById = async (PostID: string) => {
 };
 
 interface PostBody {
-	title: string;
 	content: string;
 	url_bucket: string;
 	id_user: string;
+	description: string;
 }
 
 export const createPost = async (post: PostBody) => {
 	return await db.post.create({
 		data: {
-			title: post.title,
+			description: post.description,
 			content: post.content,
 			id_user: post.id_user,
-			height: 0,
-			width: 0,
-			version: "1.0.0",
 			url_bucket: post.url_bucket,
 		},
 	});

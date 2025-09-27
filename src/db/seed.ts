@@ -24,25 +24,17 @@ async function main() {
   // Crear posts
   const post1 = await db.post.create({
     data: {
-      title: 'Mi primer post',
       content: 'Contenido interesante del post.',
       id_user: user1.id,
       url_bucket: JSON.stringify({ url: 'https://localhost:9000/image1.jpg' }),
-      height: 512,
-      width: 512,
-      version: "v1",
     },
   });
 
 const post2 = await db.post.create({
   data: {
-      title: 'Reflexiones de la noche',
       content: 'Pensamientos antes de dormir.',
       id_user: user2.id,
       url_bucket: JSON.stringify({ url: 'https://localhost:9000/image2.jpg' }),
-      height: 512,
-      width: 512,
-      version: "v1",
     },
   });
 
@@ -64,20 +56,6 @@ const post2 = await db.post.create({
     },
   });
 
-  // Crear sesiones
-  await db.session.create({
-    data: {
-      id_user: user1.id,
-      refresh_token: 'refresh_token_123',
-    },
-  });
-
-  await db.session.create({
-    data: {
-      id_user: user2.id,
-      refresh_token: 'refresh_token_456',
-    },
-  });
 }
 
 main()
