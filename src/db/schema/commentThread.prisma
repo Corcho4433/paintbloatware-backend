@@ -5,7 +5,7 @@ model CommentThread {
   id_comment String
 
   user    User    @relation(fields: [id_user], references: [id])
-  comment Comment @relation(fields: [id_comment], references: [id])<
+  comment Comment @relation(fields: [id_comment], references: [id])
 
   @@map("comment_threads")
 }

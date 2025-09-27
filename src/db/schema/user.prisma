@@ -1,12 +1,15 @@
 model User {
-  id       String    @id @default(cuid())
-  name     String
-  email    String    @unique
-  password String
-  comments Comment[]
-  posts    Post[]
-  ratings  Ratings[]
-  sessions Session[]
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  password      String
+  urlPfp        String?
+  description   String?
+  comments      Comment[]
+  posts         Post[]
+  ratings       Ratings[]
+  sessions      Session[]
+  CommentThread CommentThread[]
 
   @@map("users")
 }
