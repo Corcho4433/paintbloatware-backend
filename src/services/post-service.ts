@@ -2,7 +2,48 @@ import type { Post } from "@prisma/client";
 import { db } from "../db/db";
 
 export const getPosts = async ({ page }: { page: number }) => {
+	const pageSize = 10;
+	
+	const [posts, totalCount] = await Promise.all([
+		db.post.findMany({
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			select: {
+				id: true,
+				url_bucket: true,
+				title: true,
+				content: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+				_count: {
+					select: {
+						comments: true,
+					},
+				},
+			},
+		}),
+		db.post.count()
+	]);
+
+	const maxPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		posts,
+		maxPages,
+		currentPage: page,
+		totalCount
+	};
+};
+
+export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
 	return await db.post.findMany({
+		where: {
+			id_user: userID,
+		},
 		skip: (page - 1) * 10,
 		take: 10,
 		select: {
@@ -15,21 +56,6 @@ export const getPosts = async ({ page }: { page: number }) => {
 					id: true,
 				},
 			},
-			_count: {
-				select: {
-					comments: true,
-				},
-			},
-		},
-	});
-};
-
-export const getPostsByUser = async (userID: string) => {
-	return await db.post.findMany({
-		where: {
-			id_user: userID,
-		},
-		include: {
 			_count: {
 				select: {
 					comments: true,

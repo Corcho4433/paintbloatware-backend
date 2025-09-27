@@ -15,12 +15,17 @@ export const postRouter = express.Router();
 postRouter.get("/", async (req, res, next) => {
 	try {
 		const page = Number.parseInt(req.query.page as string) || 1;
-		const posts = await getPosts({ page });
-		if (!posts) {
-			throw new NotFound("No se encontraron posts para este");
+		const result = await getPosts({ page });
+		if (!result.posts || result.posts.length === 0) {
+			throw new NotFound("No se encontraron posts para esta página");
 		}
 
-		res.status(200).json({ posts: posts });
+		res.status(200).json({ 
+			posts: result.posts,
+			maxPages: result.maxPages,
+			currentPage: result.currentPage,
+			totalCount: result.totalCount
+		});
 	} catch (error) {
 		console.log(error);
 	}
@@ -29,7 +34,8 @@ postRouter.get("/", async (req, res, next) => {
 postRouter.get("/user/:id", async (req, res, next) => {
 	try {
 		const id_user = req.params.id;
-		const posts = await getPostsByUser(id_user);
+		const page = Number.parseInt(req.query.page as string) || 1;
+		const posts = await getPostsByUser({ userID: id_user, page });
 		if (!posts) {
 			throw new BadRequest("Ese usuario no tiene posts");
 		}
