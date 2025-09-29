@@ -9,7 +9,7 @@ import { createComment } from "../services/comment-service";
 import { isAuthMiddleware } from "../middleware/authMiddleware";
 import { BadRequest, NotFound } from "../errors/server_errors";
 import { createRating, getRatingsByPost } from "../services/rating-service";
-
+import type { PostBody } from "../services/post-service";
 export const postRouter = express.Router();
 
 postRouter.get("/", async (req, res, next) => {
@@ -61,24 +61,38 @@ postRouter.get("/:id", async (req, res, next) => {
 	}
 });
 
-postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
+postRouter.post("/", async (req, res) => {
 	try {
 		const post_body = req.body;
-		const user = req.user;
+		const user = req.body.user;
 
 		if (!user) {
-			throw new BadRequest("No tienes permisos para crear un post");
+			res.status(401).json({ error: "No tienes permisos para crear un post" });
+			return;
 		}
+		const requiredFields: (keyof PostBody)[] = [
+			"source",
+			"image",
+			"description",
+			"tags",
+		];
 
-		const post = await createPost({ id_user: user.id, ...post_body });
+		for (const field of requiredFields) {
+			if (post_body[field] === undefined || post_body[field] === null) {
+				return res.status(400).json({ error: `Falta el campo obligatorio: ${field}` });
+			}
+		}
+		const post = await createPost({ id_user: user, ...post_body });
 
 		if (!post) {
-			throw new BadRequest("No se pudo crear el post");
+			return res.status(400).json({ error: "No se pudo crear el post" });
 		}
 
 		res.status(200).json({ post: post });
+		return;
 	} catch (error) {
-		next(error);
+		 console.error("Error creating post:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
 	}
 });
 

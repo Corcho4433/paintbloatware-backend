@@ -1,7 +1,7 @@
 import type { Post } from "@prisma/client";
 import { db } from "../db/db";
 
-interface PostBody {
+export interface PostBody {
 	source: string;
 	image: string;
 	description: string;
