@@ -2,6 +2,7 @@ model Comment {
   id            String          @id @default(cuid())
   id_user       String
   id_post       String
+  like_count    Int
   content       String
   post          Post            @relation(fields: [id_post], references: [id])
   user          User            @relation(fields: [id_user], references: [id])

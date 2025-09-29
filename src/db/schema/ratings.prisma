@@ -3,6 +3,7 @@ model Ratings {
   value   Int
   id_user String
   id_post String
+  like_date DateTime @default(now())
 
   post Post @relation(fields: [id_post], references: [id])
   user User @relation(fields: [id_user], references: [id])
