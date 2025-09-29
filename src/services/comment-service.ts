@@ -14,12 +14,38 @@ export const getCommentById = async (commentID: string) => {
 	});
 };
 
-export const getCommentsByPost = async (postID: string) => {
-	return await db.comment.findMany({
-		where: {
-			id_post: postID,
-		},
-	});
+export const getCommentsByPost = async (postID: string, {page}: { page: number }) => {
+	const pageSize = 10;
+
+	const [comments, totalCount] = await Promise.all([
+		db.comment.findMany({
+			where: {
+				id_post: postID,
+			},
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			select: {
+				id: true,
+				content: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+			},
+		}),
+		db.comment.count()
+	]);
+	
+	const maxPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		comments,
+		maxPages,
+		currentPage: page,
+		totalCount
+	};
 };
 
 export const getCommentsByUser = async (userID: string) => {

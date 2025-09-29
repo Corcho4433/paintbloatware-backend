@@ -8,10 +8,16 @@ export const commentRouter = express.Router();
 
 commentRouter.get("/:post", async (req, res, next) => {
 	try {
+		const page = Number.parseInt(req.query.page as string) || 1;
 		const id_post = req.params.post;
-		const comments = await getCommentsByPost(id_post);
+		const comments = await getCommentsByPost(id_post, { page });
 
-		res.status(200).json({ comments: comments });
+		res.status(200).json({ 
+			comments: comments,
+			maxPages: comments.maxPages,
+			currentPage: comments.currentPage,
+			totalCount: comments.totalCount
+		});
 	} catch (error) {
 		next(error)
 	}
