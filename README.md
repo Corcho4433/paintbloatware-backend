@@ -16,13 +16,22 @@ Para levantar la base de datos:
 - bun run seed
 - bun run dev
 
-Tarea de lichi:
+# TODO List
 
-- Fijarse q todos los endpoints tengan un return y una respuesta, si tiran un error se quedan bugeados
-- Paginacion en los comentarios
-- Likes para los comentarios??
-- Likes para los posteos
-- Paginacion para los comentarios??
-- Setear algunas tags
+> Testear endpoints y validar que tengan respuestas
+> Likear comentarios
+> Likear posts
+> Paginacion para los comentarios
+> Paginacion para los threads de los comentarios
+> Crear tags y hacer el fetch de tags
+> Trending router
+> Tendencias por tags 
+*(agarrar los mas likeados en las ultimas 12h/24h)*
+> Filtrar posts por tags
+> Permitir que usuarios suban imágenes (foto de perfil) a bucket y seteen su foto de perfil
+> Permitir posteos anónimos
+
+
+
 
 GRACIAS CHIMI
