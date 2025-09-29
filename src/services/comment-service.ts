@@ -35,7 +35,7 @@ export const createComment = async (comment: CommentBody) => {
 		data: {
 			id_post: comment.id_post,
 			id_user: comment.id_user,
-			content: comment.content
+			content: comment.content           
 		},
 	});
 };
