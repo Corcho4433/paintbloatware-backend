@@ -20,6 +20,8 @@ export const getUserById = async (UserID: string) => {
 		select: {
 			id: true,
 			name: true,
+			urlPfp: true,
+			description: true
 		}
 	});
 };

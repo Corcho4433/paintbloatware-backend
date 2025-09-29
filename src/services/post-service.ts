@@ -80,6 +80,7 @@ export const getPostById = async (PostID: string) => {
 			user: {
 				select: {
 					name: true,
+					urlPfp: true,
 					id: true,
 				},
 			},
