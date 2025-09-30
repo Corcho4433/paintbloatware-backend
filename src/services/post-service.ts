@@ -20,6 +20,8 @@ export const getPosts = async ({ page }: { page: number }) => {
 				id: true,
 				url_bucket: true,
 				content: true,
+				description: true,
+				edited: true,
 				user: {
 					select: {
 						name: true,
@@ -31,6 +33,17 @@ export const getPosts = async ({ page }: { page: number }) => {
 						comments: true,
 					},
 				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
+				},
+				
 			},
 		}),
 		db.post.count()
