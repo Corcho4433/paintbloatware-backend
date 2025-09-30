@@ -8,6 +8,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import MinioClientSingleton from "./minio/minio-client";
 import { setupMinioBucket } from "./minio/minio-setup";
+import { trendingRouter } from "./routers/trending-router";
+import { tagRouter } from "./routers/tag-router";
+import { ratingRouter } from "./routers/rating-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +35,9 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/ratings", ratingRouter);
+app.use("/api/trends", trendingRouter);
+app.use("/api/tags", tagRouter);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -79,4 +85,4 @@ async function testConnection() {
 	}
 }
 
-testConnection();
+// testConnection();

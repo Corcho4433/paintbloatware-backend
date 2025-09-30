@@ -117,13 +117,11 @@ export const createPost = async (post: PostBody) => {
 		},
 	});
 
-	console.log("ohio post:", postResult);
 
 	if (!postResult) {
 		throw new Error("Failed to create post");
 	}
 	
-	// Create tag relationships if tags exist
 	if (tags && tags.length > 0) {
 		await db.tagsForPost.createMany({
 			data: tags.map((tag) => ({
@@ -133,6 +131,28 @@ export const createPost = async (post: PostBody) => {
 		});
 	}
 
-	// Return the created post
 	return postResult;
 };
+
+export const getPostRatingInteractions = async (post_id: string) => {
+	return await db.ratings.count({
+		where: {
+			id_post: post_id,
+		}
+	})
+}
+
+export const getPostRating = async (post_id: string) => {
+	const posts = await db.ratings.findMany({
+		where: {
+			id_post: post_id,
+		}
+	})
+
+	let total_like_count: number = 0;
+	posts.forEach((rating) => {
+		total_like_count += rating.value;
+	})
+	
+	return total_like_count;
+}
