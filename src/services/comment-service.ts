@@ -64,5 +64,16 @@ export const createComment = async (comment: CommentBody) => {
             id_user: comment.id_user,
             content: comment.content
         },
+        select: {
+            id: true,
+            content: true,
+            user: {
+                select: {
+                    name: true,
+                    id: true,
+                    urlPfp: true
+                }
+            }
+        }
     });
 };
