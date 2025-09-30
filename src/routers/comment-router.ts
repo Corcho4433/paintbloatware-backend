@@ -11,21 +11,17 @@ commentRouter.get("/:post", async (req, res, next) => {
 		const id_post = req.params.post;
 		const comments = await getCommentsByPost(id_post, { page });
 
-		res.status(200).json({ 
-			comments: comments,
-			maxPages: comments.maxPages,
-			currentPage: comments.currentPage,
-			totalCount: comments.totalCount
-		});
+		res.status(200).json({ comments: comments.comments, maxPages: comments.maxPages, currentPage: comments.currentPage, totalCount: comments.totalCount });
 	} catch (error) {
-		next(error)
+		console.error(error);
+    res.status(500).json({ error: "Error interno del servidor" });
 	}
 });
 
 commentRouter.post("/:post", isAuthMiddleware ,async (req, res, next) => {
 	try {
 		const id_post = req.params.post;
-		const user = req.body.user;
+		const user = req.user;
 		const content = req.body.content;
 
 		if (!content ){
@@ -36,10 +32,11 @@ commentRouter.post("/:post", isAuthMiddleware ,async (req, res, next) => {
 			throw new BadRequest("No se encuentra ese post")
 		}
 
-		const comment = await createComment({id_user: user, id_post,content})
+		const comment = await createComment({id_user: user.id, id_post,content})
 		res.status(200).json({new_comment: comment})
 	} catch (error) {
-		next(error)
+		console.error(error);
+    res.status(500).json({ error: "Error interno del servidor" });
 	}
 });
 
