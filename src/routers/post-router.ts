@@ -91,8 +91,8 @@ postRouter.post("/", async (req, res) => {
 		res.status(200).json({ post: post });
 		return;
 	} catch (error) {
-		 console.error("Error creating post:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+			console.error("Error creating post:", error);
+  		res.status(500).json({ error: "Error interno del servidor" });
 	}
 });
 
