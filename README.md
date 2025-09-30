@@ -32,7 +32,7 @@ Para levantar la base de datos:
 > Permitir que usuarios suban imágenes (foto de perfil) a bucket y seteen su foto de perfil
 > Permitir posteos anónimos
 > Validar admin en caso de subir una tag
-
+> Agregat ratings a los servicios del post
 
 
 
