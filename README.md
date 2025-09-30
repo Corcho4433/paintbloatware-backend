@@ -30,6 +30,7 @@ Para levantar la base de datos:
 > Filtrar posts por tags
 > Permitir que usuarios suban imágenes (foto de perfil) a bucket y seteen su foto de perfil
 > Permitir posteos anónimos
+> Validar admin en caso de subir una tag
 
 
 
