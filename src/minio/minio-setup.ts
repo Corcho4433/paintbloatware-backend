@@ -21,6 +21,22 @@ const bucketPolicy = `
 }
 `;
 
+const bucketPolicyPfp = `
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": ["*"]
+      },
+      "Action": ["s3:GetObject"],
+      "Resource": ["arn:aws:s3:::${BUCKET_NAME_PFP}/*"]
+    }
+  ]
+}
+`;
+
 export async function setupMinioBucket() {
 	try {
 		const exists = await minio.bucketExists(BUCKET_NAME_IMAGES);
@@ -40,7 +56,7 @@ export async function setupMinioBucket() {
 		}
 
 		await minio.setBucketPolicy(BUCKET_NAME_IMAGES, bucketPolicy);
-		await minio.setBucketPolicy(BUCKET_NAME_PFP, bucketPolicy);
+		await minio.setBucketPolicy(BUCKET_NAME_PFP, bucketPolicyPfp);
 
 		console.log(
 			`✅ Bucket "${BUCKET_NAME_IMAGES}" con política pública de solo lectura aplicado.`,
