@@ -1,5 +1,8 @@
 import { Router } from "express";
 import { createRating, getRatingsByPost, getRatingsByUser } from "../services/rating-service";
+import { isAuthMiddleware } from "../middleware/authMiddleware";
+import { BadRequest, ValidationError } from "../errors/server_errors";
+import { getPostById } from "../services/post-service";
 
 export const ratingRouter = Router();
 
@@ -25,15 +28,23 @@ ratingRouter.get("/post/:postId", async (req, res) => {
     }
 });
 
-// Create a new rating
-ratingRouter.post("/", async (req, res) => {
+// Rate a post (-1; 1)
+ratingRouter.post("/", isAuthMiddleware, async (req, res, next) => {
     try {
         const { postId, userId, value } = req.body;
-        console.log("hey", req.body);
+        if (value != -1 && value != 1) {
+            throw new ValidationError("Invalid value given for rating {-1; 1}")
+        }
+
+        const post_exists = await getPostById(postId);
+        if (!post_exists) {
+            throw new BadRequest(`Post by id ${postId} does not exist.`)    
+        }
 
         const newRating = await createRating(postId, userId, value);
+        
         res.status(201).json(newRating);
     } catch (error) {
-        res.status(500).json({ error: "Failed to create rating" });
+        next(error)
     }
 });
