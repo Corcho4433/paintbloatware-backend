@@ -1,5 +1,4 @@
 import express from "express";
-import { isAuthMiddleware } from "../middleware/authMiddleware";
 import { addTag, getAllTags } from "../services/tag-service";
 
 export const tagRouter = express.Router();
@@ -8,10 +7,9 @@ tagRouter.get("/", async (req, res) => {
   try {
 
     const tag_res = await getAllTags();
-    
-    console.log("check aall tags", tag_res);
 
-    res.send(200).json({
+  
+    res.status(200).json({
       tags: tag_res,
     });
 

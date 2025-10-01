@@ -7,8 +7,6 @@ trendingRouter.get("/", async (req, res) => {
   try {
     const orderedTrendings = await getTrendingTags();
 
-    console.log("Current trendings", orderedTrendings);
-
     res.send(200).json({
       trendings: orderedTrendings,
     });
