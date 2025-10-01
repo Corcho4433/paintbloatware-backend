@@ -11,7 +11,7 @@ export interface PostBody {
 
 export const getPosts = async ({ page }: { page: number }) => {
 	const pageSize = 10;
-	
+
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
 			skip: (page - 1) * pageSize,
@@ -21,6 +21,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 				url_bucket: true,
 				content: true,
 				description: true,
+				created_at: true,
 				edited: true,
 				user: {
 					select: {
@@ -43,7 +44,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 						}
 					}
 				},
-				
+
 			},
 		}),
 		db.post.count()
@@ -60,28 +61,60 @@ export const getPosts = async ({ page }: { page: number }) => {
 };
 
 export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
-	return await db.post.findMany({
-		where: {
-			id_user: userID,
-		},
-		skip: (page - 1) * 10,
-		take: 10,
-		select: {
-			id: true,
-			url_bucket: true,
-			user: {
-				select: {
-					name: true,
-					id: true,
+	const pageSize = 10;
+
+	const [posts, totalCount] = await Promise.all([
+		db.post.findMany({
+			where: {
+				id_user: userID,
+			},
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			select: {
+				id: true,
+				url_bucket: true,
+				content: true,
+				description: true,
+				edited: true,
+				created_at: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+				_count: {
+					select: {
+						comments: true,
+					},
+				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
 				},
 			},
-			_count: {
-				select: {
-					comments: true,
-				},
-			},
-		},
-	});
+		}),
+		db.post.count({
+			where: {
+				id_user: userID,
+			}
+		})
+	]);
+
+	const maxPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		posts,
+		maxPages,
+		currentPage: page,
+		totalCount
+	};
 };
 
 export const getPostById = async (PostID: string) => {
@@ -135,7 +168,7 @@ export const createPost = async (post: PostBody) => {
 	if (!postResult) {
 		throw new Error("Failed to create post");
 	}
-	
+
 	if (tags && tags.length > 0) {
 		await db.tagsForPost.createMany({
 			data: tags.map((tag) => ({
@@ -167,6 +200,6 @@ export const getPostRating = async (post_id: string) => {
 	posts.forEach((rating) => {
 		total_like_count += rating.value;
 	})
-	
+
 	return total_like_count;
 }

@@ -40,7 +40,7 @@ postRouter.get("/user/:id", async (req, res, next) => {
 			throw new BadRequest("Ese usuario no tiene posts");
 		}
 
-		res.status(200).json({ posts: posts });
+		res.status(200).json({ maxPages: posts.maxPages, currentPage: posts.currentPage, posts: posts.posts, totalCount: posts.totalCount });
 	} catch (error) {
 		next(error);
 	}
