@@ -123,6 +123,19 @@ export const getPostById = async (PostID: string) => {
 			id: true,
 			content: true,
 			url_bucket: true,
+			created_at: true,
+			description: true,
+			edited: true,
+			TagsForPost: {
+				select: {
+					tag: {
+						select: {
+							id: true,
+							name: true
+						}
+					}
+				}
+			},
 			user: {
 				select: {
 					name: true,
