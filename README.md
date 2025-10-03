@@ -33,6 +33,7 @@ Para levantar la base de datos:
 > Permitir posteos anónimos
 > Validar admin en caso de subir una tag
 > Agregat ratings a los servicios del post
+> Agregar la fecha de creacion a los comentarios
 
 
 

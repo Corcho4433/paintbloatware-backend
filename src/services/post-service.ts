@@ -10,7 +10,7 @@ export interface PostBody {
 }
 
 export const getPosts = async ({ page }: { page: number }) => {
-	const pageSize = 10;
+	const pageSize = 12;
 
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
@@ -61,7 +61,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 };
 
 export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
-	const pageSize = 10;
+	const pageSize = 12;
 
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
