@@ -16,6 +16,7 @@ import passport from "passport";
 import "./services/providers/google-service"; // ✅ Importar para registrar la estrategia de Google
 import "./services/providers/github-service"
 import { githubRouter } from "./routers/providers/github-router";
+import { pfpRouter } from "./routers/pfp-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ app.use("/api/auth", githubRouter)
 app.use("/api/ratings", ratingRouter);
 app.use("/api/trends", trendingRouter);
 app.use("/api/tags", tagRouter);
+app.use("/api/pfp" , pfpRouter)
 
 // Health check
 app.get("/health", (req, res) => {

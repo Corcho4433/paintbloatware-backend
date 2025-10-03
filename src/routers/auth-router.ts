@@ -96,13 +96,12 @@ authRouter.post("/login", async (req, res, next) => {
 
 authRouter.post("/refresh", async (req, res, next) => {
 	try {
-		const { body } = req;
-		const { refresh_token } = body;
+		const refresh_token = req.cookies.refresh_token;
 
 		if (!refresh_token) {
 			throw new ValidationError("Necesitas un refresh token bro");
 		}
-
+		console.log(refresh_token)
 		const user = await verifyRefreshToken(refresh_token);
 		if (!user) {
 			throw new AuthError();
@@ -129,6 +128,7 @@ authRouter.post("/refresh", async (req, res, next) => {
 			.status(200)
 			.json({ success: true });
 	} catch (error) {
+		console.log(error)
 		next(error);
 	}
 });
