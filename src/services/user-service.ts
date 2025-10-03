@@ -47,6 +47,19 @@ export const getUserPersonalInfoByID = async (UserID: string) => {
 }
 
 export const updatePersonalInfo = async (userId: string, userData: UserUpdateInterface) => {
+  // Verificar si el usuario tiene cuentas OAuth (Google, GitHub, etc.)
+  const oauthAccount = await db.account.findFirst({
+    where: {
+      userId: userId,
+      type: "oauth"
+    }
+  });
+
+  // Si tiene cuenta OAuth y está intentando cambiar el email, no permitirlo
+  if (oauthAccount && userData.email) {
+    throw new Error("No puedes cambiar el email de una cuenta OAuth");
+  }
+
   // Filtrar campos undefined
   const dataToUpdate = Object.fromEntries(
     Object.entries(userData).filter(([_, value]) => value !== undefined)
