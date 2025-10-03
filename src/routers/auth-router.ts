@@ -20,17 +20,17 @@ authRouter.post("/register", async (req, res, next) => {
 	try {
 		const { body } = req;
 		const { name, email, password } = body;
-		
+
 		// Validar que todos los campos estén completos
 		if (!name || !email || !password) {
 			throw new ValidationError("Se requieren nombre, email y contraseña");
 		}
-		
+
 		// Validar que la contraseña tenga al menos 8 caracteres
 		if (password.length < 8) {
 			throw new ValidationError("La contraseña debe tener al menos 8 caracteres");
 		}
-		
+
 		const password_hash = await createPassword(password);
 		const user: UserBody = { email, name, password_hash };
 		const createdUser = await createLocalUser(user);
@@ -38,8 +38,23 @@ authRouter.post("/register", async (req, res, next) => {
 		if (!createdUser) {
 			throw new AuthError();
 		}
+		const { session_token, refresh_token } = await generateUserSession(createdUser.id);
+		res
+			.cookie("session_token", session_token, {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				maxAge: 1000 * 60 * 60,
+			})
+			.cookie("refresh_token", refresh_token, {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				maxAge: 1000 * 60 * 60 * 24 * 7,
+			})
+			.status(201)
+			.json({ data: { id: createdUser.id, pfp: createdUser.urlPfp }, success: true });
 
-		res.status(201).json({ data: createdUser.id, success: true });
 	} catch (error) {
 		next(error);
 	}
@@ -53,12 +68,12 @@ authRouter.post("/login", async (req, res, next) => {
 			throw new ValidationError("Se requieren email y contraseña");
 		}
 
-		const user = await verifyUser(email, password);
-		if (!user) {
+		const createdUser = await verifyUser(email, password);
+		if (!createdUser) {
 			throw new AuthError();
 		}
 
-		const { session_token, refresh_token } = await generateUserSession(user.id);
+		const { session_token, refresh_token } = await generateUserSession(createdUser.id);
 		res
 			.cookie("session_token", session_token, {
 				httpOnly: true,
@@ -73,7 +88,7 @@ authRouter.post("/login", async (req, res, next) => {
 				maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
 			})
 			.status(200)
-			.json({ id: user.id, name: user.name, email: user.email, success: true });
+			.json({ data: { id: createdUser.id, pfp: createdUser.urlPfp }, success: true });
 	} catch (error) {
 		next(error);
 	}
