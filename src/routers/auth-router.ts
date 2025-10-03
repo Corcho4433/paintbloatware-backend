@@ -6,7 +6,7 @@ import {
 	verifyRefreshToken,
 	verifyUser,
 } from "../services/auth-service";
-import { createUser } from "../services/user-service";
+import { createLocalUser } from "../services/user-service";
 import {
 	AuthError,
 	BadRequest,
@@ -20,9 +20,20 @@ authRouter.post("/register", async (req, res, next) => {
 	try {
 		const { body } = req;
 		const { name, email, password } = body;
+		
+		// Validar que todos los campos estén completos
+		if (!name || !email || !password) {
+			throw new ValidationError("Se requieren nombre, email y contraseña");
+		}
+		
+		// Validar que la contraseña tenga al menos 8 caracteres
+		if (password.length < 8) {
+			throw new ValidationError("La contraseña debe tener al menos 8 caracteres");
+		}
+		
 		const password_hash = await createPassword(password);
 		const user: UserBody = { email, name, password_hash };
-		const createdUser = await createUser(user);
+		const createdUser = await createLocalUser(user);
 
 		if (!createdUser) {
 			throw new AuthError();

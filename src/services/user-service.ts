@@ -38,7 +38,7 @@ export const getUserByEmail = async (email: string) => {
 	return user;
 };
 
-export const createUser = async (userBody: UserBody) => {
+export const createLocalUser = async (userBody: UserBody) => {
 	try {
 		userBody.email
 		const user = await db.user.create({
@@ -50,3 +50,22 @@ export const createUser = async (userBody: UserBody) => {
 		throw new Error("Error al crear el usuario :c");
 	}
 };
+
+
+export const createOAuthUser = async(email: string, name: string) =>{
+	try {
+		return db.user.create({
+		data: {
+			email: email,
+			name: name,
+
+		}
+	})
+	} catch (error) {
+		console.log(error)
+		throw new Error("Error al crear el usuario")
+	}
+	
+
+
+}
