@@ -12,7 +12,6 @@ export const verifyUser = async (email: string, password: string) => {
 		return; //throw new Error("La contraseña no coincide aprende a escribir :v");
 	}
 
-	console.log("match: ", is_match);
 
 	return user;
 };

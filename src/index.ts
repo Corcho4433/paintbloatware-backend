@@ -14,6 +14,8 @@ import { tagRouter } from "./routers/tag-router";
 import { ratingRouter } from "./routers/rating-router";
 import passport from "passport";
 import "./services/providers/google-service"; // ✅ Importar para registrar la estrategia de Google
+import "./services/providers/github-service"
+import { githubRouter } from "./routers/providers/github-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +42,7 @@ app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/auth", googleRouter)
+app.use("/api/auth", githubRouter)
 app.use("/api/ratings", ratingRouter);
 app.use("/api/trends", trendingRouter);
 app.use("/api/tags", tagRouter);
