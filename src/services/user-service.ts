@@ -56,14 +56,15 @@ export const updatePersonalInfo = async (userId: string, userData: UserUpdateInt
   });
 
   // Si tiene cuenta OAuth y está intentando cambiar el email, no permitirlo
-  if (oauthAccount && userData.email) {
-    throw new Error("No puedes cambiar el email de una cuenta OAuth");
-  }
+  
 
   // Filtrar campos undefined
   const dataToUpdate = Object.fromEntries(
     Object.entries(userData).filter(([_, value]) => value !== undefined)
   );
+	//if (oauthAccount && userData.email) {
+  //  throw new Error("No puedes cambiar el email de una cuenta OAuth");
+  //}
 
   return await db.user.update({
     where: { id: userId },
