@@ -105,7 +105,8 @@ userRouter.get('/info/:id', isAuthMiddleware, async (req, res, next) => {
 			email: data.email,
 			name: data.name,
 			description: data.description,
-			urlPfp: data.urlPfp
+			urlPfp: data.urlPfp,
+			account: data.accounts.length > 0 ? true : false
 		});
 		return;
 		// Continue with update logic here

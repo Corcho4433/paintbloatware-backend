@@ -42,6 +42,11 @@ export const getUserPersonalInfoByID = async (UserID: string) => {
 			urlPfp: true,
 			description: true,
 			email: true,
+			accounts: {
+				select: {
+					id: true,
+				}
+			}
 		}
 	})
 }
