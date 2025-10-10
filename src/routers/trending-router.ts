@@ -1,0 +1,17 @@
+import express from "express";
+import { getTrendingTags } from "../services/trending-service";
+
+export const trendingRouter = express.Router()
+
+trendingRouter.get("/", async (req, res) => {
+  try {
+    const orderedTrendings = await getTrendingTags();
+
+    res.send(200).json({
+      trendings: orderedTrendings,
+    });
+  } catch(err) {
+    console.log(err);
+    res.send(500);
+  }
+})

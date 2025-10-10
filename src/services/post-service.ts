@@ -1,7 +1,7 @@
 import type { Post } from "@prisma/client";
 import { db } from "../db/db";
 
-interface PostBody {
+export interface PostBody {
 	source: string;
 	image: string;
 	description: string;
@@ -10,8 +10,8 @@ interface PostBody {
 }
 
 export const getPosts = async ({ page }: { page: number }) => {
-	const pageSize = 10;
-	
+	const pageSize = 12;
+
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
 			skip: (page - 1) * pageSize,
@@ -20,6 +20,9 @@ export const getPosts = async ({ page }: { page: number }) => {
 				id: true,
 				url_bucket: true,
 				content: true,
+				description: true,
+				created_at: true,
+				edited: true,
 				user: {
 					select: {
 						name: true,
@@ -31,6 +34,17 @@ export const getPosts = async ({ page }: { page: number }) => {
 						comments: true,
 					},
 				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
+				},
+
 			},
 		}),
 		db.post.count()
@@ -47,28 +61,60 @@ export const getPosts = async ({ page }: { page: number }) => {
 };
 
 export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
-	return await db.post.findMany({
-		where: {
-			id_user: userID,
-		},
-		skip: (page - 1) * 10,
-		take: 10,
-		select: {
-			id: true,
-			url_bucket: true,
-			user: {
-				select: {
-					name: true,
-					id: true,
+	const pageSize = 12;
+
+	const [posts, totalCount] = await Promise.all([
+		db.post.findMany({
+			where: {
+				id_user: userID,
+			},
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			select: {
+				id: true,
+				url_bucket: true,
+				content: true,
+				description: true,
+				edited: true,
+				created_at: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+				_count: {
+					select: {
+						comments: true,
+					},
+				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
 				},
 			},
-			_count: {
-				select: {
-					comments: true,
-				},
-			},
-		},
-	});
+		}),
+		db.post.count({
+			where: {
+				id_user: userID,
+			}
+		})
+	]);
+
+	const maxPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		posts,
+		maxPages,
+		currentPage: page,
+		totalCount
+	};
 };
 
 export const getPostById = async (PostID: string) => {
@@ -77,9 +123,23 @@ export const getPostById = async (PostID: string) => {
 			id: true,
 			content: true,
 			url_bucket: true,
+			created_at: true,
+			description: true,
+			edited: true,
+			TagsForPost: {
+				select: {
+					tag: {
+						select: {
+							id: true,
+							name: true
+						}
+					}
+				}
+			},
 			user: {
 				select: {
 					name: true,
+					urlPfp: true,
 					id: true,
 				},
 			},
@@ -117,13 +177,11 @@ export const createPost = async (post: PostBody) => {
 		},
 	});
 
-	console.log("ohio post:", postResult);
 
 	if (!postResult) {
 		throw new Error("Failed to create post");
 	}
-	
-	// Create tag relationships if tags exist
+
 	if (tags && tags.length > 0) {
 		await db.tagsForPost.createMany({
 			data: tags.map((tag) => ({
@@ -133,6 +191,28 @@ export const createPost = async (post: PostBody) => {
 		});
 	}
 
-	// Return the created post
 	return postResult;
 };
+
+export const getPostRatingInteractions = async (post_id: string) => {
+	return await db.ratings.count({
+		where: {
+			id_post: post_id,
+		}
+	})
+}
+
+export const getPostRating = async (post_id: string) => {
+	const posts = await db.ratings.findMany({
+		where: {
+			id_post: post_id,
+		}
+	})
+
+	let total_like_count: number = 0;
+	posts.forEach((rating) => {
+		total_like_count += rating.value;
+	})
+
+	return total_like_count;
+}
