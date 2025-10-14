@@ -36,7 +36,11 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 				},
 			},
 		}),
-		db.comment.count()
+		db.comment.count({
+			where: {
+				id_post: postID,
+			}
+		})
 	]);
 	
 	const maxPages = Math.ceil(totalCount / pageSize);

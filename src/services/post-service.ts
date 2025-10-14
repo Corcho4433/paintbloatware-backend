@@ -10,7 +10,7 @@ export interface PostBody {
 }
 
 export const getPosts = async ({ page }: { page: number }) => {
-	const pageSize = 10;
+	const pageSize = 12;
 	
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
@@ -21,7 +21,81 @@ export const getPosts = async ({ page }: { page: number }) => {
 				url_bucket: true,
 				content: true,
 				description: true,
+				created_at: true,
 				edited: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+				_count: {
+					select: {
+						comments: true,
+						ratings: true
+					},
+				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
+				}
+			},
+		}),
+		db.post.count()
+	]);
+
+	// Get rating sums for all posts in parallel
+	const postsWithRatings = await Promise.all(
+		posts.map(async (post) => {
+			const ratingResult = await db.ratings.aggregate({
+				where: {
+					id_post: post.id,
+				},
+				_sum: {
+					value: true,
+				},
+			});
+
+			return {
+				...post,
+				rating: ratingResult._sum.value || 0
+			};
+		})
+	);
+
+	const maxPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		posts: postsWithRatings,
+		maxPages,
+		currentPage: page,
+		totalCount
+	};
+};
+
+export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
+	const pageSize = 12;
+
+	const [posts, totalCount] = await Promise.all([
+		db.post.findMany({
+			where: {
+				id_user: userID,
+			},
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			select: {
+				id: true,
+				url_bucket: true,
+				content: true,
+				description: true,
+				edited: true,
+				created_at: true,
 				user: {
 					select: {
 						name: true,
@@ -43,77 +117,106 @@ export const getPosts = async ({ page }: { page: number }) => {
 						}
 					}
 				},
-				
 			},
 		}),
-		db.post.count()
+		db.post.count({
+			where: {
+				id_user: userID,
+			}
+		})
 	]);
+
+	// Get rating sums for all posts in parallel
+	const postsWithRatings = await Promise.all(
+		posts.map(async (post) => {
+			const ratingResult = await db.ratings.aggregate({
+				where: {
+					id_post: post.id,
+				},
+				_sum: {
+					value: true,
+				},
+			});
+
+			return {
+				...post,
+				rating: ratingResult._sum.value || 0
+			};
+		})
+	);
 
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts,
+		posts: postsWithRatings,
 		maxPages,
 		currentPage: page,
 		totalCount
 	};
 };
 
-export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
-	return await db.post.findMany({
-		where: {
-			id_user: userID,
-		},
-		skip: (page - 1) * 10,
-		take: 10,
-		select: {
-			id: true,
-			url_bucket: true,
-			user: {
-				select: {
-					name: true,
-					id: true,
-				},
-			},
-			_count: {
-				select: {
-					comments: true,
-				},
-			},
-		},
-	});
-};
-
 export const getPostById = async (PostID: string) => {
-	return await db.post.findFirst({
-		select: {
-			id: true,
-			content: true,
-			url_bucket: true,
-			user: {
-				select: {
-					name: true,
-					urlPfp: true,
-					id: true,
+	const [post, ratingResult] = await Promise.all([
+		db.post.findFirst({
+			select: {
+				id: true,
+				content: true,
+				url_bucket: true,
+				created_at: true,
+				description: true,
+				edited: true,
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
 				},
-			},
-			comments: {
-				select: {
-					id: true,
-					content: true,
-					user: {
-						select: {
-							name: true,
-							id: true,
+				user: {
+					select: {
+						name: true,
+						urlPfp: true,
+						id: true,
+					},
+				},
+				comments: {
+					select: {
+						id: true,
+						content: true,
+						user: {
+							select: {
+								name: true,
+								id: true,
+							},
 						},
 					},
 				},
 			},
-		},
-		where: {
-			id: PostID,
-		},
-	});
+			where: {
+				id: PostID,
+			},
+		}),
+		db.ratings.aggregate({
+			where: {
+				id_post: PostID,
+			},
+			_sum: {
+				value: true,
+			},
+		})
+	]);
+
+	if (!post) {
+		return null;
+	}
+
+	return {
+		...post,
+		rating: ratingResult._sum.value || 0
+	};
 };
 
 
@@ -135,7 +238,7 @@ export const createPost = async (post: PostBody) => {
 	if (!postResult) {
 		throw new Error("Failed to create post");
 	}
-	
+
 	if (tags && tags.length > 0) {
 		await db.tagsForPost.createMany({
 			data: tags.map((tag) => ({
@@ -167,6 +270,6 @@ export const getPostRating = async (post_id: string) => {
 	posts.forEach((rating) => {
 		total_like_count += rating.value;
 	})
-	
+
 	return total_like_count;
 }

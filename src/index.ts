@@ -3,6 +3,7 @@ import { authRouter } from "./routers/auth-router";
 import { commentRouter } from "./routers/comment-router";
 import { postRouter } from "./routers/post-router";
 import { userRouter } from "./routers/user-router";
+import { googleRouter } from "./routers/providers/google-router";
 import { errorHandler, notFoundHandler } from "./errors/error_middleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,12 +12,18 @@ import { setupMinioBucket } from "./minio/minio-setup";
 import { trendingRouter } from "./routers/trending-router";
 import { tagRouter } from "./routers/tag-router";
 import { ratingRouter } from "./routers/rating-router";
+import passport from "passport";
+import "./services/providers/google-service"; // ✅ Importar para registrar la estrategia de Google
+import "./services/providers/github-service"
+import { githubRouter } from "./routers/providers/github-router";
+import { pfpRouter } from "./routers/pfp-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const minioClient = MinioClientSingleton.getInstance();
 
 app.use(express.json());
+app.use(passport.initialize());
 app.use(cookieParser()); // 🍪 Middleware para parsear cookies
 
 // Configuración CORS corregida para manejar cookies
@@ -35,9 +42,12 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/auth", googleRouter)
+app.use("/api/auth", githubRouter)
 app.use("/api/ratings", ratingRouter);
 app.use("/api/trends", trendingRouter);
 app.use("/api/tags", tagRouter);
+app.use("/api/pfp" , pfpRouter)
 
 // Health check
 app.get("/health", (req, res) => {

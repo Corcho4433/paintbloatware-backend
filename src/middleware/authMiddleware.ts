@@ -1,5 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { verify, type JwtPayload, TokenExpiredError } from "jsonwebtoken";
+import { verifySessionToken } from "../services/auth-service";
+
+export interface UserFromToken {
+	id: string;
+}
 
 export const isAuthMiddleware = async (
 	req: Request,
@@ -11,46 +16,36 @@ export const isAuthMiddleware = async (
 	const access_token = req.cookies?.session_token; // 🍪 Token desde cookies
 
 	// Priorizar token del header, pero usar cookie como fallback
-	// const access_token = access_token_from_header || access_token_from_cookie;
+	const session_token = access_token_from_header || access_token;
 
-	if (!access_token) {
+	if (!session_token) {
+		console.log("No session token found", {
+			header: access_token_from_header,
+			cookie: access_token,
+			cookies: req.cookies
+		});
 		res.status(401).json({ 
 			message: "No estas autenticado :c",
 			debug: {
-				token: access_token,
+				token: session_token,
 				cookies: req.cookies
 			}
 		});
 		return;
 	}
 
-	let payload: JwtPayload;
 	try {
-		payload = verify(
-			access_token,
-			process.env.ACCESS_TOKEN_SECRET,
-		) as JwtPayload;
-
-		if (!payload.user_id) {
-			res.status(401).json({ message: "NO hay user_id en el token :c" });
-			return;
-		}
+		const user = await verifySessionToken(session_token);
+		req.user = { id: user.id };
+		next();
 	} catch (error) {
-		if (error instanceof TokenExpiredError) {
-			res.status(401).json({ message: "Token expirado :c" });
-			return;
+		console.log("Auth middleware error:", error);
+		
+		if ((error as Error).message.includes("expirado")) {
+			res.status(401).json({ message: "Session expired, please log in again" });
+		} else {
+			res.status(401).json({ message: "Token invalido :c" });
 		}
-
-		res.status(401).json({ message: "Token invalido :c" });
 		return;
 	}
-
-	try {
-		req.user = { id: payload.user_id };
-	} catch (error) {
-		res.status(401).json({ message: "Token invalido :c" });
-		return;
-	}
-
-	next();
 };

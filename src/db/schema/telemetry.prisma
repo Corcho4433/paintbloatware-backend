@@ -1,0 +1,39 @@
+enum TelemetryEventType {
+  USER_SIGNUP
+  USER_LOGIN
+  USER_LOGOUT
+  USER_PROFILE_UPDATE
+
+  POST_CREATED
+  POST_DELETED
+  POST_LIKED
+  POST_UNLIKED
+  POST_COMMENTED
+  COMMENT_DELETED
+  POST_SHARED
+  POST_SAVED
+  POST_UNSAVED
+
+  ERROR_OCCURRED
+  API_REQUEST
+  API_RESPONSE
+  APP_CRASHED
+  LATENCY_MEASURED
+
+  AD_IMPRESSION
+  AD_CLICK
+
+  WATCH_TIME
+}
+
+
+model TelemetryEvent { 
+  id        String   @id @default(cuid())
+  eventType TelemetryEventType
+  userId    String?
+  timestamp DateTime @default(now())
+  metadata  Json?
+
+  @@map("telemetryEvent")
+}
+

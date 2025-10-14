@@ -1,8 +1,10 @@
 import express from "express";
-import { getUserById, getUsers } from "../services/user-service";
+import { getUserById, getUserPersonalInfoByID, getUsers, updatePersonalInfo } from "../services/user-service";
 import { getCommentsByUser } from "../services/comment-service";
 import { BadRequest, NotFound } from "../errors/server_errors";
-
+import { isAuthMiddleware } from "../middleware/authMiddleware";
+import { type User } from "@prisma/client";
+import { type UserUpdateInterface } from "../services/user-service";
 export const userRouter = express.Router();
 
 userRouter.get("/", async (req, res, next) => {
@@ -52,3 +54,63 @@ userRouter.get("/:id/comments", async (req, res, next) => {
 		next(error)
 	}
 });
+
+userRouter.put('/info/:id', isAuthMiddleware, async (req, res, next) => {
+	try {
+		const user = req.user as User & { id: string };
+		const id = req.params.id;
+		if (!user) {
+			res.status(401).json("No estas autenticada")
+			return;
+		}
+		if (user.id !== id) {
+			res.status(403).json("No tienes permiso para modificar este usuario");
+			return;
+		}
+
+		const data = req.body as UserUpdateInterface;
+
+
+		const response = updatePersonalInfo(user.id, data)
+		res.status(200).json("Information update succesfully")
+		return;
+		// Continue with update logic here
+
+	} catch (error) {
+		next(error);
+	}
+})
+
+userRouter.get('/info/:id', isAuthMiddleware, async (req, res, next) => {
+	try {
+		const user = req.user as User & { id: string };
+		const id = req.params.id;
+		if (!user) {
+			res.status(401).json("No estas autenticada")
+			return;
+		}
+		if (user.id !== id) {
+			res.status(403).json("No tienes permiso para modificar este usuario");
+			return;
+		}
+
+		const data = await getUserPersonalInfoByID(user.id);
+		if (!data) {
+			res.status(400).json("Failed")
+			return;
+		}
+		res.status(200).json({
+			id: data.id,
+			email: data.email,
+			name: data.name,
+			description: data.description,
+			urlPfp: data.urlPfp,
+			account: data.accounts.length > 0 ? true : false
+		});
+		return;
+		// Continue with update logic here
+
+	} catch (error) {
+		next(error);
+	}
+})

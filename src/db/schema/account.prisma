@@ -1,0 +1,12 @@
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String   // "google" | "github" | "facebook"
+  providerAccountId String   // id que te da el proveedor
+  type              String   // "oauth"
+
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}

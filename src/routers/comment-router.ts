@@ -13,8 +13,7 @@ commentRouter.get("/:post", async (req, res, next) => {
 
 		res.status(200).json({ comments: comments.comments, maxPages: comments.maxPages, currentPage: comments.currentPage, totalCount: comments.totalCount });
 	} catch (error) {
-		console.error(error);
-    res.status(500).json({ error: "Error interno del servidor" });
+		next(error);
 	}
 });
 
@@ -35,8 +34,7 @@ commentRouter.post("/:post", isAuthMiddleware ,async (req, res, next) => {
 		const comment = await createComment({id_user: user.id, id_post,content})
 		res.status(200).json({new_comment: comment})
 	} catch (error) {
-		console.error(error);
-    res.status(500).json({ error: "Error interno del servidor" });
+		next(error);
 	}
 });
 
