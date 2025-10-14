@@ -77,3 +77,14 @@ export const createComment = async (comment: CommentBody) => {
         }
     });
 };
+
+export const likeComment = async (commentID: string) => {
+    return await db.comment.update({
+        where: {
+            id: commentID
+        },
+        data: {
+            like_count: + 1
+        }
+    })
+}

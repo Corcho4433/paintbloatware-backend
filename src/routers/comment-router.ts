@@ -54,3 +54,15 @@ commentRouter.get("/:id", async (req, res, next) => {
 		next(error)
 	}
 });
+
+commentRouter.put("/:id/like", isAuthMiddleware, async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		const user = req.user;
+
+		const comment = await createComment({id_user: user.id, id_post: id, content: "like"})
+		res.status(200).json({new_comment: comment})
+	} catch (error) {
+		next(error)
+	}
+});
