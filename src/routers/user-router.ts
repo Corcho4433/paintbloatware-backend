@@ -77,8 +77,7 @@ userRouter.put('/info/:id', isAuthMiddleware, async (req, res, next) => {
 		// Continue with update logic here
 
 	} catch (error) {
-		console.log(error)
-		res.status(400).json("Internal server error")
+		next(error);
 	}
 })
 
@@ -112,6 +111,6 @@ userRouter.get('/info/:id', isAuthMiddleware, async (req, res, next) => {
 		// Continue with update logic here
 
 	} catch (error) {
-		res.status(400).json("Internal server error")
+		next(error);
 	}
 })

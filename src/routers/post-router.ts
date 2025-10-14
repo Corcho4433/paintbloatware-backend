@@ -16,9 +16,7 @@ postRouter.get("/", async (req, res, next) => {
 	try {
 		const page = Number.parseInt(req.query.page as string) || 1;
 		const result = await getPosts({ page });
-		if (!result.posts || result.posts.length === 0) {
-			throw new NotFound("No se encontraron posts para esta página");
-		}
+
 
 		res.status(200).json({ 
 			posts: result.posts,
@@ -27,7 +25,7 @@ postRouter.get("/", async (req, res, next) => {
 			totalCount: result.totalCount
 		});
 	} catch (error) {
-		console.log(error);
+		next(error);
 	}
 });
 

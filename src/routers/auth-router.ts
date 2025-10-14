@@ -128,7 +128,6 @@ authRouter.post("/refresh", async (req, res, next) => {
 			.status(200)
 			.json({ success: true });
 	} catch (error) {
-		console.log(error)
 		next(error);
 	}
 });

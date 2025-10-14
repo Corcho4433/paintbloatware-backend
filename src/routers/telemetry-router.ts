@@ -5,7 +5,7 @@ import { TelemetryEventType } from "@prisma/client";
 
 export const telemetryRouter = express.Router();
 
-telemetryRouter.post("/", async (req, res) => {
+telemetryRouter.post("/", async (req, res,next) => {
   try {
     const { eventType, userId, metadata } = req.body;
 
@@ -24,6 +24,6 @@ telemetryRouter.post("/", async (req, res) => {
     res.status(201).json({ success: true, id: event.id });
   } catch (error) {
     console.error("Telemetry error:", error);
-    res.status(500).json({ error: "Failed to log telemetry" });
+    next(error);
   }
 });

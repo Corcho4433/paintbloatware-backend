@@ -7,24 +7,24 @@ import { getPostById } from "../services/post-service";
 export const ratingRouter = Router();
 
 // Get ratings by user ID
-ratingRouter.get("/user/:userId", async (req, res) => {
+ratingRouter.get("/user/:userId", async (req, res, next) => {
     try {
         const { userId } = req.params;
         const ratings = await getRatingsByUser(userId);
         res.json(ratings);
     } catch (error) {
-        res.status(500).json({ error: "Failed to get user ratings" });
+        next(error);
     }
 });
 
 // Get ratings by post ID
-ratingRouter.get("/post/:postId", async (req, res) => {
+ratingRouter.get("/post/:postId", async (req, res,next) => {
     try {
         const { postId } = req.params;
         const ratings = await getRatingsByPost(postId);
         res.json(ratings);
     } catch (error) {
-        res.status(500).json({ error: "Failed to get post ratings" });
+        next(error);
     }
 });
 
