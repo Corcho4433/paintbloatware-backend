@@ -1,6 +1,6 @@
 import express from "express";
 import { setPfp, getPfpByUser, uploadToMinio } from "../services/pfp-service";
-import { isAuthMiddleware } from "../middleware/authMiddleware";
+import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 import { BadRequest, NotFound } from "../errors/server_errors";
 import multer from "multer";
 
@@ -14,7 +14,7 @@ const uploadSingle = upload.single("pfp"); // 'pfp' es el nombre del campo del a
 
 pfpRouter.post("/", isAuthMiddleware, uploadSingle,  async (req, res, next) => {
   try {
-    const user = req.user;
+    const user = req.user as UserFromToken;
     const pfp = req.file;
 
     if (!pfp) {
@@ -44,7 +44,7 @@ pfpRouter.post("/", isAuthMiddleware, uploadSingle,  async (req, res, next) => {
 });
 pfpRouter.put("/", isAuthMiddleware, uploadSingle, async (req, res, next) => {
   try {
-    const user = req.user;
+    const user = req.user as UserFromToken;
     const newPfp = req.file;
     if (!newPfp) {
       res.json("Error uploading profile picture").status(400)

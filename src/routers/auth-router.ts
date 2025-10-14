@@ -101,16 +101,22 @@ authRouter.post("/refresh", async (req, res, next) => {
 		if (!refresh_token) {
 			throw new ValidationError("Necesitas un refresh token bro");
 		}
-		console.log(refresh_token)
+		
+		console.log("Refresh token received:", refresh_token);
+		
 		const user = await verifyRefreshToken(refresh_token);
 		if (!user) {
-			throw new AuthError();
+			throw new AuthError("Token de refresh inválido");
 		}
+
+		console.log("User verified:", user.id);
 
 		const { session_token, refresh_token: new_refresh_token } =
 			await generateUserSession(user.id);
 
 		await deleteLastSession(user.id, refresh_token);
+
+		console.log("New tokens generated successfully");
 
 		res
 			.cookie("session_token", session_token, {
@@ -128,6 +134,7 @@ authRouter.post("/refresh", async (req, res, next) => {
 			.status(200)
 			.json({ success: true });
 	} catch (error) {
+		console.log("Error in refresh endpoint:", error);
 		next(error);
 	}
 });

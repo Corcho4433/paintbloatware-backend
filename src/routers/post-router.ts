@@ -6,7 +6,7 @@ import {
 	getPostsByUser,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
-import { isAuthMiddleware } from "../middleware/authMiddleware";
+import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 import { BadRequest, NotFound } from "../errors/server_errors";
 import { createRating, getRatingsByPost } from "../services/rating-service";
 import type { PostBody } from "../services/post-service";
@@ -59,15 +59,15 @@ postRouter.get("/:id", async (req, res, next) => {
 	}
 });
 
-postRouter.post("/", async (req, res) => {
+postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 	try {
 		const post_body = req.body;
-		const user = req.body.user;
+		const user = req.user as UserFromToken;
 
-		if (!user) {
-			res.status(401).json({ error: "No tienes permisos para crear un post" });
-			return;
+		if (!user || !user.id) {
+			throw new BadRequest("No tienes permisos para crear un post");
 		}
+
 		const requiredFields: (keyof PostBody)[] = [
 			"source",
 			"image",
@@ -80,24 +80,23 @@ postRouter.post("/", async (req, res) => {
 				return res.status(400).json({ error: `Falta el campo obligatorio: ${field}` });
 			}
 		}
-		const post = await createPost({ id_user: user, ...post_body });
+
+		const post = await createPost({ id_user: user.id, ...post_body });
 
 		if (!post) {
-			return res.status(400).json({ error: "No se pudo crear el post" });
+			throw new BadRequest("No se pudo crear el post");
 		}
 
 		res.status(200).json({ post: post });
-		return;
 	} catch (error) {
-			console.error("Error creating post:", error);
-  		res.status(500).json({ error: "Error interno del servidor" });
+		next(error);
 	}
 });
 
 postRouter.post("/:id/comment", isAuthMiddleware, async (req, res, next) => {
 	try {
 		const comment_body = req.body;
-		const user = req.user;
+		const user = req.user as UserFromToken;
 
 		const comment = await createComment({
 			id_user: user.id,
@@ -132,7 +131,7 @@ postRouter.post("/:id/ratings", isAuthMiddleware, async (req, res, next) => {
 
 		const id = req.params.id;
 		const value = req.body.value;
-		const user = req.user;
+		const user = req.user as UserFromToken;
 
 		const rating = await createRating(id, user.id, value);
 
