@@ -3,7 +3,7 @@ import { addTag, getAllTags } from "../services/tag-service";
 
 export const tagRouter = express.Router();
 
-tagRouter.get("/", async (req, res) => {
+tagRouter.get("/", async (req, res,next) => {
   try {
 
     const tag_res = await getAllTags();
@@ -13,12 +13,12 @@ tagRouter.get("/", async (req, res) => {
       tags: tag_res,
     });
 
-  } catch (er) {
-    console.log(er);
+  } catch (error) {
+    next(error);
   }
 })
 
-tagRouter.post("/upload", async (req, res) => {
+tagRouter.post("/upload", async (req, res, next) => {
   try {
 
     const { tag_name } = req.body;
@@ -33,7 +33,7 @@ tagRouter.post("/upload", async (req, res) => {
       status: "Added tag" + tag_name,
     })
 
-  } catch(err) {
-    console.log(err);
+  } catch(error) {
+      next(error);
   }
 })

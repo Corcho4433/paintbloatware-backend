@@ -11,7 +11,7 @@ export interface PostBody {
 
 export const getPosts = async ({ page }: { page: number }) => {
 	const pageSize = 12;
-
+	
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
 			skip: (page - 1) * pageSize,
@@ -32,6 +32,7 @@ export const getPosts = async ({ page }: { page: number }) => {
 				_count: {
 					select: {
 						comments: true,
+						ratings: true
 					},
 				},
 				TagsForPost: {
@@ -43,17 +44,35 @@ export const getPosts = async ({ page }: { page: number }) => {
 							}
 						}
 					}
-				},
-
+				}
 			},
 		}),
 		db.post.count()
 	]);
 
+	// Get rating sums for all posts in parallel
+	const postsWithRatings = await Promise.all(
+		posts.map(async (post) => {
+			const ratingResult = await db.ratings.aggregate({
+				where: {
+					id_post: post.id,
+				},
+				_sum: {
+					value: true,
+				},
+			});
+
+			return {
+				...post,
+				rating: ratingResult._sum.value || 0
+			};
+		})
+	);
+
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts,
+		posts: postsWithRatings,
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -107,10 +126,29 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 		})
 	]);
 
+	// Get rating sums for all posts in parallel
+	const postsWithRatings = await Promise.all(
+		posts.map(async (post) => {
+			const ratingResult = await db.ratings.aggregate({
+				where: {
+					id_post: post.id,
+				},
+				_sum: {
+					value: true,
+				},
+			});
+
+			return {
+				...post,
+				rating: ratingResult._sum.value || 0
+			};
+		})
+	);
+
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts,
+		posts: postsWithRatings,
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -118,48 +156,67 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 };
 
 export const getPostById = async (PostID: string) => {
-	return await db.post.findFirst({
-		select: {
-			id: true,
-			content: true,
-			url_bucket: true,
-			created_at: true,
-			description: true,
-			edited: true,
-			TagsForPost: {
-				select: {
-					tag: {
-						select: {
-							id: true,
-							name: true
+	const [post, ratingResult] = await Promise.all([
+		db.post.findFirst({
+			select: {
+				id: true,
+				content: true,
+				url_bucket: true,
+				created_at: true,
+				description: true,
+				edited: true,
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
 						}
 					}
-				}
-			},
-			user: {
-				select: {
-					name: true,
-					urlPfp: true,
-					id: true,
 				},
-			},
-			comments: {
-				select: {
-					id: true,
-					content: true,
-					user: {
-						select: {
-							name: true,
-							id: true,
+				user: {
+					select: {
+						name: true,
+						urlPfp: true,
+						id: true,
+					},
+				},
+				comments: {
+					select: {
+						id: true,
+						content: true,
+						user: {
+							select: {
+								name: true,
+								id: true,
+							},
 						},
 					},
 				},
 			},
-		},
-		where: {
-			id: PostID,
-		},
-	});
+			where: {
+				id: PostID,
+			},
+		}),
+		db.ratings.aggregate({
+			where: {
+				id_post: PostID,
+			},
+			_sum: {
+				value: true,
+			},
+		})
+	]);
+
+	if (!post) {
+		return null;
+	}
+
+	return {
+		...post,
+		rating: ratingResult._sum.value || 0
+	};
 };
 
 

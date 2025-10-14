@@ -7,11 +7,14 @@ import { getUserByEmail } from "./user-service";
 export const verifyUser = async (email: string, password: string) => {
 	const user = await getUserByEmail(email);
 
+	if (!user.password) {
+		throw new Error("Usuario no tiene contraseña configurada");
+	}
+
 	const is_match = await Bun.password.verify(password, user.password);
 	if (!is_match) {
 		return; //throw new Error("La contraseña no coincide aprende a escribir :v");
 	}
-
 
 	return user;
 };
@@ -26,7 +29,7 @@ const generateAccessToken = (user_id: string) => {
 		const token = sign({ user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 		return token;
 	} catch (error) {
-		console.log(error)
+		console.log("Error generating access token:", error)
 		throw new Error("Error al generar el token :c");
 	}
 };
@@ -41,7 +44,7 @@ const generateRefreshToken = async (user_id: string) => {
 
 		return refresh_token;
 	} catch (error) {
-		console.log(error)
+		console.log("Error generating refresh token:", error)
 		throw new Error("Error al generar el refresh token :c");
 	}
 };
@@ -68,10 +71,9 @@ export const deleteLastSession = async (id_user: string, refresh_token: string) 
 
 export const verifyRefreshToken = async (refresh_token: string) => {
 	try {
-
 		let payload: JwtPayload;
 		try {
-			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
+			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET!) as JwtPayload; 
 	
 			if (!payload.user_id) {
 				throw new Error("NO hay user_id en el token :c");
@@ -86,14 +88,53 @@ export const verifyRefreshToken = async (refresh_token: string) => {
 
 		const user = await db.user.findFirst({
 			where: {
+				id: payload.user_id,
 				sessions: {
-					some: { refresh_token, id_user: payload.user_id },
+					some: { 
+						refresh_token: refresh_token
+					},
 				}
 			},
 		});
 
+		if (!user) {
+			throw new Error("Usuario no encontrado o sesión inválida");
+		}
+
 		return user;
 	} catch (error) {
+		console.log("Error in verifyRefreshToken:", error);
+		throw new Error((error as Error).message);
+	}
+};
+
+export const verifySessionToken = async (session_token: string) => {
+	try {
+		if (!process.env.ACCESS_TOKEN_SECRET) {
+			throw new Error("ACCESS_TOKEN_SECRET no está configurado");
+		}
+
+		const payload = verify(session_token, process.env.ACCESS_TOKEN_SECRET) as JwtPayload;
+		
+		if (!payload.user_id) {
+			throw new Error("NO hay user_id en el token");
+		}
+
+		// Verify the user still exists
+		const user = await db.user.findUnique({
+			where: { id: payload.user_id }
+		});
+
+		if (!user) {
+			throw new Error("Usuario no encontrado");
+		}
+
+		return user;
+	} catch (error) {
+		if (error instanceof TokenExpiredError) {
+			throw new Error("Token expirado");
+		}
+		console.log("Error in verifySessionToken:", error);
 		throw new Error((error as Error).message);
 	}
 };

@@ -17,6 +17,16 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
 
     next();
     return;
+  } else {
+    console.error(`Unhandled error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: "Internal Server Error",
+        code: 500,
+        type: "InternalServerError"
+      }
+    });
   }
 }
 
