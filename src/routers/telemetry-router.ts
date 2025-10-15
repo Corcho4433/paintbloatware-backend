@@ -2,6 +2,7 @@
 import express from "express";
 import { db } from "../db/db";
 import { TelemetryEventType } from "@prisma/client";
+import { BadRequest } from "../errors/server_errors";
 
 export const telemetryRouter = express.Router();
 
@@ -10,7 +11,7 @@ telemetryRouter.post("/", async (req, res,next) => {
     const { eventType, userId, metadata } = req.body;
 
     if (!eventType) {
-      return res.status(400).json({ error: "Missing eventType" });
+      throw new BadRequest("Missing eventType");
     }
 
     const event = await db.telemetryEvent.create({

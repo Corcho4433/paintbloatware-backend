@@ -8,20 +8,38 @@ export const pfpRouter = express.Router();
 
 // Configurar Multer para almacenar el archivo temporalmente en el servidor
 const storage = multer.memoryStorage(); // Usamos memoria para evitar escribir en disco
-const upload = multer({ storage });
+
+// Función para filtrar solo imágenes
+const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimes = ["image/jpeg", "image/png", "image/gif", "image/bmp"];  // Tipos MIME permitidos
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);  // Permite el archivo
+  } else {
+    cb(null, false);  // Rechaza el archivo, pero no pasa un error directamente a Multer
+    // Si necesitas lanzar un error, puedes hacerlo después en el flujo de ejecución.
+  }
+};
+
+const upload = multer({ 
+  storage,
+  fileFilter 
+});
 
 const uploadSingle = upload.single("pfp"); // 'pfp' es el nombre del campo del archivo en el body de la solicitud
 
-pfpRouter.post("/", isAuthMiddleware, uploadSingle,  async (req, res, next) => {
+
+pfpRouter.post("/", isAuthMiddleware, uploadSingle, async (req, res, next) => {
   try {
     const user = req.user as UserFromToken;
     const pfp = req.file;
 
+    // Verificar si el archivo fue rechazado (Multer lo establece en `null` si fue rechazado)
     if (!pfp) {
-      throw new BadRequest("Debes enviar una foto de perfil");
+      throw new BadRequest("Solo se permiten imágenes (JPG, PNG, GIF y BMP)");
     }
+
     if (!user) {
-      res.status(401)
+      res.status(401);
       return;
     }
 
@@ -39,26 +57,25 @@ pfpRouter.post("/", isAuthMiddleware, uploadSingle,  async (req, res, next) => {
 
     res.status(200).json({ pfp: newPfp });
   } catch (error) {
+    console.log("further error");
     next(error);
   }
 });
+
 pfpRouter.put("/", isAuthMiddleware, uploadSingle, async (req, res, next) => {
   try {
     const user = req.user as UserFromToken;
     const newPfp = req.file;
+
+        // Verificar si el archivo fue rechazado (Multer lo establece en `null` si fue rechazado)
     if (!newPfp) {
-      res.json("Error uploading profile picture").status(400)
-      throw new BadRequest("Debes enviar una nueva foto de perfil");
+      throw new BadRequest("Solo se permiten imágenes (JPG, PNG, GIF y BMP)");
     }
 
-
-    
     // Subir nueva foto
     const newPfpUrl = await uploadToMinio(newPfp, user.id);
 
     if (!newPfpUrl) {
-
-      res.json("Error uploading profile picture").status(400)
       throw new NotFound("No se pudo subir la nueva foto de perfil");
     }
 
@@ -66,22 +83,19 @@ pfpRouter.put("/", isAuthMiddleware, uploadSingle, async (req, res, next) => {
     const updatedPfp = await setPfp(user.id, newPfpUrl);
 
     if (!updatedPfp) {
-      res.json("Error updating profile picture").status(400)
       throw new NotFound("No se pudo actualizar la foto de perfil");
-
     }
 
-    // Opcional: Eliminar archivo anterior de MinIO aquí
-    // await deleteFromMinio(oldPfp.url);
-
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Foto de perfil actualizada exitosamente",
-      pfp: updatedPfp 
+      pfp: updatedPfp
     });
   } catch (error) {
     next(error);
   }
 });
+
+
 pfpRouter.get("/:id", async (req, res, next) => {
 	try {
 		const id = req.params.id;
