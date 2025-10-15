@@ -49,3 +49,33 @@ export const isAuthMiddleware = async (
 		return;
 	}
 };
+
+export const optionalAuthMiddleware = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	const auth_header = req.headers.authorization;
+	const access_token_from_header = auth_header?.split(" ")[1];
+	const access_token = req.cookies?.session_token;
+
+	const session_token = access_token_from_header || access_token;
+
+	if (!session_token) {
+		// Si no hay token, continúa sin usuario
+		req.user = undefined;
+		next();
+		return;
+	}
+
+	try {
+		const user = await verifySessionToken(session_token);
+		req.user = { id: user.id };
+		next();
+	} catch (error) {
+		// Si el token es inválido, continúa sin usuario (no lanza error)
+		console.log("Optional auth middleware: invalid token, continuing without user");
+		req.user = undefined;
+		next();
+	}
+};

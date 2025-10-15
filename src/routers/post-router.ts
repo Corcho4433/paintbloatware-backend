@@ -4,18 +4,22 @@ import {
 	getPostById,
 	getPosts,
 	getPostsByUser,
+	getPostsByTag,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
-import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
+import { isAuthMiddleware, optionalAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 import { BadRequest, NotFound } from "../errors/server_errors";
 import { createRating, getRatingsByPost } from "../services/rating-service";
 import type { PostBody } from "../services/post-service";
 export const postRouter = express.Router();
 
-postRouter.get("/", async (req, res, next) => {
+postRouter.get("/", optionalAuthMiddleware, async (req, res, next) => {
 	try {
 		const page = Number.parseInt(req.query.page as string) || 1;
-		const result = await getPosts({ page });
+		const user = req.user as UserFromToken | undefined;
+		const userId = user?.id;
+		
+		const result = await getPosts({ page, userId });
 
 		res.status(200).json({ 
 			posts: result.posts,
@@ -38,6 +42,34 @@ postRouter.get("/user/:id", async (req, res, next) => {
 		}
 
 		res.status(200).json({ maxPages: posts.maxPages, currentPage: posts.currentPage, posts: posts.posts, totalCount: posts.totalCount });
+	} catch (error) {
+		next(error);
+	}
+});
+
+postRouter.get("/tag/:tag", async (req, res, next) => {
+	try {
+		const tagName = req.params.tag;
+		const page = Number.parseInt(req.query.page as string) || 1;
+		
+		const result = await getPostsByTag(tagName, { page });
+		console.log(result);
+		if (!result.posts || result.posts.length === 0) {
+			return res.status(200).json({ 
+				posts: [],
+				maxPages: 0,
+				currentPage: page,
+				totalCount: 0,
+				message: `No se encontraron posts con la tag "${tagName}"`
+			});
+		}
+
+		res.status(200).json({
+			posts: result.posts,
+			maxPages: result.pagination.totalPages,
+			currentPage: result.pagination.currentPage,
+			totalCount: result.pagination.totalCount
+		});
 	} catch (error) {
 		next(error);
 	}
