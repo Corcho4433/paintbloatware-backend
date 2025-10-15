@@ -4,8 +4,8 @@ model Comment {
   id_post       String
   like_count    Int             @default(0)
   content       String
-  post          Post            @relation(fields: [id_post], references: [id])
-  user          User            @relation(fields: [id_user], references: [id])
+  post          Post            @relation(fields: [id_post], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [id_user], references: [id], onDelete: Cascade)
   CommentThread CommentThread[]
 
   @@map("comments")

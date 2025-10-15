@@ -11,7 +11,7 @@ model Post {
 
   comments Comment[]
 
-  user        User          @relation(fields: [id_user], references: [id])
+  user        User          @relation(fields: [id_user], references: [id], onDelete: Cascade)
   ratings     Ratings[]
   TagsForPost TagsForPost[]
 

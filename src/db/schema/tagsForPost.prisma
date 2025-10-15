@@ -3,8 +3,8 @@ model TagsForPost {
   id_tag  String
   id_post String
 
-  post Post @relation(fields: [id_post], references: [id])
-  tag  Tags @relation(fields: [id_tag], references: [id])
+  post Post @relation(fields: [id_post], references: [id], onDelete: Cascade)
+  tag  Tags @relation(fields: [id_tag], references: [id], onDelete: Cascade)
 
   @@map("tagsForPost")
 }

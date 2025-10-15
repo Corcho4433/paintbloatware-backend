@@ -4,8 +4,8 @@ model CommentThread {
   id_user    String
   id_comment String
 
-  user    User    @relation(fields: [id_user], references: [id])
-  comment Comment @relation(fields: [id_comment], references: [id])
+  user    User    @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [id_comment], references: [id], onDelete: Cascade)
 
   @@map("comment_threads")
 }
