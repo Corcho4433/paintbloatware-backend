@@ -99,13 +99,14 @@ userRouter.get('/info/:id', isAuthMiddleware, async (req, res, next) => {
 			res.status(400).json("Failed")
 			return;
 		}
+		console.log(data.accounts)
 		res.status(200).json({
 			id: data.id,
 			email: data.email,
 			name: data.name,
 			description: data.description,
 			urlPfp: data.urlPfp,
-			account: data.accounts.length > 0
+			oauth: data.accounts.length > 0
 		});
 		return;
 		// Continue with update logic here

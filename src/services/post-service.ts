@@ -9,11 +9,12 @@ export interface PostBody {
 	id_user: string;
 }
 
-export const getPosts = async ({ page }: { page: number }) => {
+export const getPosts = async ({ page, userId }: { page: number; userId?: string }) => {
 	const pageSize = 12;
 	
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
+			orderBy:{ created_at: 'desc' },
 			skip: (page - 1) * pageSize,
 			take: pageSize,
 			select: {
@@ -32,7 +33,6 @@ export const getPosts = async ({ page }: { page: number }) => {
 				_count: {
 					select: {
 						comments: true,
-						ratings: true
 					},
 				},
 				TagsForPost: {
@@ -50,21 +50,34 @@ export const getPosts = async ({ page }: { page: number }) => {
 		db.post.count()
 	]);
 
-	// Get rating sums for all posts in parallel
+	// Get rating sums and user ratings for all posts in parallel
 	const postsWithRatings = await Promise.all(
 		posts.map(async (post) => {
-			const ratingResult = await db.ratings.aggregate({
-				where: {
-					id_post: post.id,
-				},
-				_sum: {
-					value: true,
-				},
-			});
+			const [ratingResult, userRating] = await Promise.all([
+				db.ratings.aggregate({
+					where: {
+						id_post: post.id,
+					},
+					_sum: {
+						value: true,
+					},
+				}),
+				// Solo buscar rating del usuario si está logueado
+				userId ? db.ratings.findFirst({
+					where: {
+						id_post: post.id,
+						id_user: userId,
+					},
+					select: {
+						value: true,
+					},
+				}) : Promise.resolve(null)
+			]);
 
 			return {
 				...post,
-				rating: ratingResult._sum.value || 0
+				rating: ratingResult._sum.value || 0,
+				ratingValue: userRating?.value || 0 // 1, -1, o 0
 			};
 		})
 	);
@@ -273,3 +286,86 @@ export const getPostRating = async (post_id: string) => {
 
 	return total_like_count;
 }
+
+export const getPostsByTag = async (tagName: string, { page = 1 }: { page?: number } = {}) => {
+	const pageSize = 12;
+	
+	const [posts, totalCount] = await Promise.all([
+		db.post.findMany({
+			skip: (page - 1) * pageSize,
+			take: pageSize,
+			where: {
+				TagsForPost: {
+					some: {
+						tag: {
+							name: {
+								equals: tagName,
+								mode: 'insensitive' // Para búsqueda case-insensitive
+							}
+						}
+					}
+				}
+			},
+			select: {
+				id: true,
+				url_bucket: true,
+				content: true,
+				description: true,
+				created_at: true,
+				edited: true,
+				user: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+				_count: {
+					select: {
+						comments: true,
+						ratings: true
+					},
+				},
+				TagsForPost: {
+					select: {
+						tag: {
+							select: {
+								id: true,
+								name: true
+							}
+						}
+					}
+				}
+			},
+			orderBy: {
+				created_at: 'desc'
+			}
+		}),
+		db.post.count({
+			where: {
+				TagsForPost: {
+					some: {
+						tag: {
+							name: {
+								equals: tagName,
+								mode: 'insensitive'
+							}
+						}
+					}
+				}
+			}
+		})
+	]);
+
+	const totalPages = Math.ceil(totalCount / pageSize);
+
+	return {
+		posts,
+		pagination: {
+			currentPage: page,
+			totalPages,
+			totalCount,
+			hasNextPage: page < totalPages,
+			hasPreviousPage: page > 1
+		}
+	};
+};

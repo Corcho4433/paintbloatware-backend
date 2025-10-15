@@ -33,22 +33,23 @@ export const getUserById = async (UserID: string) => {
 
 export const getUserPersonalInfoByID = async (UserID: string) => {
 	return await db.user.findFirst({
-		where: {
-			id: UserID,
-		},
-		select: {
-			id: true,
-			name: true,
-			urlPfp: true,
-			description: true,
-			email: true,
-			accounts: {
-				select: {
-					id: true,
-				}
-			}
-		}
-	})
+  where: {
+    id: UserID,
+  },
+  select: {
+    id: true,
+    name: true,
+    urlPfp: true,
+    description: true,
+    email: true,
+    accounts: {
+      select: {
+        provider: true,
+        type: true
+      }
+    }
+  }
+})
 }
 
 export const updatePersonalInfo = async (userId: string, userData: UserUpdateInterface) => {
@@ -60,16 +61,17 @@ export const updatePersonalInfo = async (userId: string, userData: UserUpdateInt
     }
   });
 
+
   // Si tiene cuenta OAuth y está intentando cambiar el email, no permitirlo
   
 
   // Filtrar campos undefined
-  const dataToUpdate = Object.fromEntries(
-    Object.entries(userData).filter(([_, value]) => value !== undefined)
-  );
-	//if (oauthAccount && userData.email) {
-  //  throw new Error("No puedes cambiar el email de una cuenta OAuth");
-  //}
+  const entries = oauthAccount && userData.email
+	? Object.entries(userData).filter(([key, value]) => key !== 'email' && value !== undefined) // No actualizar email si tiene OAuth
+	: Object.entries(userData).filter(([_, value]) => value !== undefined);
+
+  const dataToUpdate = Object.fromEntries(entries);
+
 
   return await db.user.update({
     where: { id: userId },

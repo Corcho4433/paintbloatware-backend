@@ -29,7 +29,7 @@ tagRouter.post("/upload", async (req, res, next) => {
 
     console.log(result, ' recv added');
 
-    res.send(200).json({
+    res.status(200).json({
       status: "Added tag" + tag_name,
     })
 
