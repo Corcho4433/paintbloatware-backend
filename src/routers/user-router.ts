@@ -1,7 +1,7 @@
 import express from "express";
 import { getUserById, getUserPersonalInfoByID, getUsers, updatePersonalInfo } from "../services/user-service";
 import { getCommentsByUser } from "../services/comment-service";
-import { BadRequest, NotFound } from "../errors/server_errors";
+import { BadRequest, Forbidden, NotFound, Unauthorized } from "../errors/server_errors";
 import { isAuthMiddleware } from "../middleware/authMiddleware";
 import type { User } from "@prisma/client";
 import type { UserUpdateInterface } from "../services/user-service";
@@ -60,12 +60,10 @@ userRouter.put('/info/:id', isAuthMiddleware, async (req, res, next) => {
 		const user = req.user as User & { id: string };
 		const id = req.params.id;
 		if (!user) {
-			res.status(401).json("No estas autenticada")
-			return;
+			throw new Unauthorized("No estas autenticada");
 		}
 		if (user.id !== id) {
-			res.status(403).json("No tienes permiso para modificar este usuario");
-			return;
+			throw new Forbidden("No tienes permiso para modificar este usuario");
 		}
 
 		const data = req.body as UserUpdateInterface;

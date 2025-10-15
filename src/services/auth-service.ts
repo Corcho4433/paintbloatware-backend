@@ -73,7 +73,7 @@ export const verifyRefreshToken = async (refresh_token: string) => {
 	try {
 		let payload: JwtPayload;
 		try {
-			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET!) as JwtPayload; 
+			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
 	
 			if (!payload.user_id) {
 				throw new Error("NO hay user_id en el token :c");
