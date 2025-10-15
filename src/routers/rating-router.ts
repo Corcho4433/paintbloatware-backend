@@ -33,7 +33,7 @@ ratingRouter.post("/", isAuthMiddleware, async (req, res, next) => {
     try {
         const { postId, value } = req.body;
         const user = req.user as UserFromToken;
-        if (value != -1 && value != 1 && value != 0) {
+        if (value !== -1 && value !== 1 && value !== 0) {
             throw new ValidationError("Invalid value given for rating {-1; 1; 0}")
         }
 

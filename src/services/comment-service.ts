@@ -6,6 +6,12 @@ interface CommentBody {
 	content: string
 }
 
+interface CommentThreadBody {
+	id_comment: string
+	id_user: string
+	content: string
+}
+
 export const getCommentById = async (commentID: string) => {
 	return await db.comment.findFirst({
 		where: {
@@ -67,6 +73,27 @@ export const createComment = async (comment: CommentBody) => {
             id_post: comment.id_post,
             id_user: comment.id_user,
             content: comment.content
+        },
+        select: {
+            id: true,
+            content: true,
+            user: {
+                select: {
+                    name: true,
+                    id: true,
+                    urlPfp: true
+                }
+            }
+        }
+    });
+};
+
+export const createCommentThread = async (commentThread: CommentThreadBody) => {
+    return await db.commentThread.create({
+        data: {
+            id_user: commentThread.id_user,
+            content: commentThread.content,
+						id_comment: commentThread.id_comment
         },
         select: {
             id: true,

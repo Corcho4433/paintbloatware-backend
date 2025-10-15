@@ -3,8 +3,8 @@ import { getUserById, getUserPersonalInfoByID, getUsers, updatePersonalInfo } fr
 import { getCommentsByUser } from "../services/comment-service";
 import { BadRequest, NotFound } from "../errors/server_errors";
 import { isAuthMiddleware } from "../middleware/authMiddleware";
-import { type User } from "@prisma/client";
-import { type UserUpdateInterface } from "../services/user-service";
+import type { User } from "@prisma/client";
+import type { UserUpdateInterface } from "../services/user-service";
 export const userRouter = express.Router();
 
 userRouter.get("/", async (req, res, next) => {
@@ -105,7 +105,7 @@ userRouter.get('/info/:id', isAuthMiddleware, async (req, res, next) => {
 			name: data.name,
 			description: data.description,
 			urlPfp: data.urlPfp,
-			account: data.accounts.length > 0 ? true : false
+			account: data.accounts.length > 0
 		});
 		return;
 		// Continue with update logic here
