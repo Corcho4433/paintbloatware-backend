@@ -33,12 +33,16 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 			select: {
 				id: true,
 				content: true,
+				created_at: true,
 				user: {
 					select: {
 						name: true,
 						id: true,
 						urlPfp: true
 					},
+				},
+				_count: {
+					select: { CommentThread: true }
 				},
 			},
 		}),
@@ -48,11 +52,17 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 			}
 		})
 	]);
-	
+
+	// Flatten the _count.CommentThread property for each comment
+	const commentsWithThreadCount = comments.map(comment => ({
+		...comment,
+		commentThreadCount: comment._count?.CommentThread ?? 0
+	}));
+
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		comments,
+		comments: commentsWithThreadCount,
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -89,24 +99,28 @@ export const createComment = async (comment: CommentBody) => {
 };
 
 export const createCommentThread = async (commentThread: CommentThreadBody) => {
-    return await db.commentThread.create({
-        data: {
-            id_user: commentThread.id_user,
-            content: commentThread.content,
-						id_comment: commentThread.id_comment
-        },
-        select: {
-            id: true,
-            content: true,
-            user: {
-                select: {
-                    name: true,
-                    id: true,
-                    urlPfp: true
-                }
-            }
-        }
-    });
+	const thread = await db.commentThread.create({
+		data: {
+			id_user: commentThread.id_user,
+			content: commentThread.content,
+			id_comment: commentThread.id_comment
+		},
+		select: {
+			id: true,
+			content: true,
+			created_at: true,
+			id_user: true,
+			id_comment: true,
+			user: {
+				select: {
+					name: true,
+					id: true,
+					urlPfp: true
+				}
+			}
+		}
+	});
+	return { thread };
 };
 
 export const likeComment = async (commentID: string) => {

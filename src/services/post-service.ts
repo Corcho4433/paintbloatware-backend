@@ -33,6 +33,7 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 				_count: {
 					select: {
 						comments: true,
+					
 					},
 				},
 				TagsForPost: {
