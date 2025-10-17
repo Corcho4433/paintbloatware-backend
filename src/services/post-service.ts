@@ -235,9 +235,33 @@ export const getPostById = async (PostID: string) => {
 
 export const createPost = async (post: PostBody) => {
 	const { tags } = post;
-	console.log("post: ", post);
+	
+	// Validar que todas las tags existan antes de crear el post
+	let tagIds: string[] = [];
+	if (tags && tags.length > 0) {
+		tagIds = await Promise.all(
+			tags.map(async (tagName) => {
+				// Buscar si la tag ya existe
+				const tag = await db.tags.findFirst({y
+					where: {
+						name: {
+							equals: tagName,
+							mode: 'insensitive' // Case-insensitive
+						}
+					}
+				});
 
-	console.log("tags: ", tags);
+				// Si no existe, lanzar error (no se crea el post)
+				if (!tag) {
+					throw new Error(`Tag "${tagName}" no encontrada`);
+				}
+
+				return tag.id;
+			})
+		);
+	}
+
+	// Si llegamos aquí, todas las tags son válidas, proceder a crear el post
 	const postResult = await db.post.create({
 		data: {
 			description: post.description,
@@ -247,16 +271,16 @@ export const createPost = async (post: PostBody) => {
 		},
 	});
 
-
 	if (!postResult) {
 		throw new Error("Failed to create post");
 	}
 
-	if (tags && tags.length > 0) {
+	// Crear las relaciones con las tags
+	if (tagIds.length > 0) {
 		await db.tagsForPost.createMany({
-			data: tags.map((tag) => ({
+			data: tagIds.map((tagId) => ({
 				id_post: postResult.id,
-				id_tag: tag,
+				id_tag: tagId,
 			})),
 		});
 	}

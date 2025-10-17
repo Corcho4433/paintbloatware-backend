@@ -4,6 +4,7 @@ model Comment {
   id_post       String
   like_count    Int             @default(0)
   content       String
+  created_at    DateTime        @default(now())
   post          Post            @relation(fields: [id_post], references: [id], onDelete: Cascade)
   user          User            @relation(fields: [id_user], references: [id], onDelete: Cascade)
   CommentThread CommentThread[]

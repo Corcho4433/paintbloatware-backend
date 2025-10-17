@@ -4,6 +4,7 @@ model Account {
   provider          String   // "google" | "github" | "facebook"
   providerAccountId String   // id que te da el proveedor
   type              String   // "oauth"
+  created_at       DateTime @default(now())
 
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

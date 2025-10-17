@@ -108,7 +108,7 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 
 		for (const field of requiredFields) {
 			if (post_body[field] === undefined || post_body[field] === null) {
-				return res.status(400).json({ error: `Falta el campo obligatorio: ${field}` });
+				throw new BadRequest(`Falta el campo obligatorio: ${field}`);
 			}
 		}
 
