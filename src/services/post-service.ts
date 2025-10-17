@@ -242,7 +242,7 @@ export const createPost = async (post: PostBody) => {
 		tagIds = await Promise.all(
 			tags.map(async (tagName) => {
 				// Buscar si la tag ya existe
-				const tag = await db.tags.findFirst({y
+				const tag = await db.tags.findFirst({
 					where: {
 						name: {
 							equals: tagName,
