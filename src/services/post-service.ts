@@ -102,7 +102,7 @@ export const deletePost = async (postId: string, userId: string) => {
 	})
 }
 
-export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
+export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: string; page: number; loggedUserId?: string }) => {
 	const pageSize = 12;
 
 	const [posts, totalCount] = await Promise.all([
