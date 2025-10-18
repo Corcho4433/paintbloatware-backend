@@ -36,13 +36,15 @@ const generateAccessToken = (user_id: string) => {
 
 const generateRefreshToken = async (user_id: string) => {
 	try {
-		const refresh_token = sign({ user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
+		const refresh_token_raw = sign({ user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
 		
+		const refresh_token_hashed = await Bun.password.hash(refresh_token_raw);
+
 		await db.session.create({
-			data: { id_user: user_id, refresh_token },
+			data: { id_user: user_id, refresh_token: refresh_token_hashed },
 		});
 
-		return refresh_token;
+		return refresh_token_raw;
 	} catch (error) {
 		console.log("Error generating refresh token:", error)
 		throw new Error("Error al generar el refresh token :c");
@@ -61,17 +63,23 @@ export const generateUserSession = async (id_user: string) => {
 };
 
 export const deleteLastSession = async (id_user: string, refresh_token: string) => {
-	await db.session.deleteMany({
-		where: {
-			id_user,
-			refresh_token,
-		},
-	});
+	try {
+		const refresh_token_hashed = await Bun.password.hash(refresh_token);
+		await db.session.deleteMany({
+			where: {
+				id_user,
+				refresh_token: refresh_token_hashed,
+			},
+		});
+	} catch (error) {
+		throw new Error("Error al borrar la sesión :c");
+	}
 };
 
 export const verifyRefreshToken = async (refresh_token: string) => {
 	try {
 		let payload: JwtPayload;
+		const refresh_token_hashed = await Bun.password.hash(refresh_token);
 		try {
 			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
 	
@@ -91,7 +99,7 @@ export const verifyRefreshToken = async (refresh_token: string) => {
 				id: payload.user_id,
 				sessions: {
 					some: { 
-						refresh_token: refresh_token
+						refresh_token: refresh_token_hashed
 					},
 				}
 			},
