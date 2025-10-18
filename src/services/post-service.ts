@@ -93,13 +93,25 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 	};
 };
 
-export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: string; page: number; loggedUserId?: string }) => {
+export const deletePost = async (postId: string, userId: string) => {
+	return await db.post.delete({
+		where: {
+			id: postId,
+			id_user: userId
+		}
+	})
+}
+
+export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
 	const pageSize = 12;
 
 	const [posts, totalCount] = await Promise.all([
 		db.post.findMany({
 			where: {
 				id_user: userID,
+			},
+			orderBy: {
+				created_at: "desc"
 			},
 			skip: (page - 1) * pageSize,
 			take: pageSize,
@@ -114,6 +126,7 @@ export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: s
 					select: {
 						name: true,
 						id: true,
+						urlPfp: true
 					},
 				},
 				_count: {
@@ -197,7 +210,7 @@ export const getPostById = async ({PostID, userId}: {PostID: string, userId?: st
 						tag: {
 							select: {
 								id: true,
-								name: true
+								name: true,
 							}
 						}
 					}
@@ -366,6 +379,7 @@ export const getPostsByTag = async (tagName: string, { page = 1 }: { page?: numb
 					select: {
 						name: true,
 						id: true,
+						urlPfp: true
 					},
 				},
 				_count: {

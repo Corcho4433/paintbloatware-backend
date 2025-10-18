@@ -26,6 +26,7 @@
 		"typescript": "^5.8.2"
 	},
 	"dependencies": {
+		"@google/genai": "^1.25.0",
 		"@prisma/client": "^6.8.2",
 		"@types/cookie-parser": "^1.4.9",
 		"@types/cors": "^2.8.19",

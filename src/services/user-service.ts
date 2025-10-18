@@ -31,6 +31,14 @@ export const getUserById = async (UserID: string) => {
 	});
 };
 
+export const getAdmin = async (UserID: string) => {
+  return await db.admin.findFirst({
+    where: {
+      userId: UserID
+    }
+  })
+};
+
 export const deleteUserById = async (UserID: string) => {
 	return await db.user.delete({
 		where: {
@@ -143,7 +151,4 @@ export const createOAuthUser = async (email: string, name: string) => {
 		console.log(error)
 		throw new Error("Error al crear el usuario")
 	}
-
-
-
 }

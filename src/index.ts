@@ -18,6 +18,7 @@ import "./services/providers/google-service"; // ✅ Importar para registrar la 
 import "./services/providers/github-service"
 import { githubRouter } from "./routers/providers/github-router";
 import { pfpRouter } from "./routers/pfp-router";
+import { geminiRouter } from "./routers/gemini-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +51,7 @@ app.use("/api/trends", trendingRouter);
 app.use("/api/tags", tagRouter);
 app.use("/api/pfp" , pfpRouter)
 app.use("/api/comment-threads", commentThreadRouter);
+app.use("/api/gemini", geminiRouter);
 
 // Health check
 app.get("/health", (req, res) => {

@@ -13,6 +13,7 @@ import {
 	ValidationError,
 } from "../errors/server_errors";
 import type { UserBody } from "../services/user-service";
+import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 
 export const authRouter = express.Router();
 
@@ -89,6 +90,27 @@ authRouter.post("/login", async (req, res, next) => {
 			})
 			.status(200)
 			.json({ data: { id: createdUser.id, pfp: createdUser.urlPfp }, success: true });
+	} catch (error) {
+		next(error);
+	}
+});
+
+authRouter.post("/logout", isAuthMiddleware, async (req, res, next) => {
+	try {
+		const user = req.user as UserFromToken;
+		const { refresh_token } = req.cookies;
+
+		if (!refresh_token) {
+			throw new BadRequest("No hay refresh token");
+		}
+
+		await deleteLastSession(user.id, refresh_token);
+
+		res
+			.clearCookie("session_token")
+			.clearCookie("refresh_token")
+			.status(200)
+			.json({ success: true });
 	} catch (error) {
 		next(error);
 	}
