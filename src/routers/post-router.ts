@@ -32,11 +32,15 @@ postRouter.get("/", optionalAuthMiddleware, async (req, res, next) => {
 	}
 });
 
-postRouter.get("/user/:id", async (req, res, next) => {
+postRouter.get("/user/:id", optionalAuthMiddleware, async (req, res, next) => {
 	try {
 		const id_user = req.params.id;
 		const page = Number.parseInt(req.query.page as string) || 1;
-		const posts = await getPostsByUser({ userID: id_user, page });
+		const loggedUserId = req.user as UserFromToken | undefined;
+		if (!id_user) {
+			throw new BadRequest("Debes enviar un id de usuario");
+		}
+		const posts = await getPostsByUser({ userID: id_user, page, loggedUserId: loggedUserId?.id });
 		if (!posts) {
 			throw new BadRequest("Ese usuario no tiene posts");
 		}
@@ -75,10 +79,14 @@ postRouter.get("/tag/:tag", async (req, res, next) => {
 	}
 });
 
-postRouter.get("/:id", async (req, res, next) => {
+postRouter.get("/:id",optionalAuthMiddleware, async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const post = await getPostById(id);
+		const userId = (req.user as UserFromToken | undefined)?.id;
+		if (!id) {
+			throw new BadRequest("Debes enviar un id de post");
+		}
+		const post = await getPostById({PostID: id, userId: userId});
 
 		if (!post) {
 			throw new BadRequest("Ese post no existe");

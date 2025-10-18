@@ -93,7 +93,7 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 	};
 };
 
-export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
+export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: string; page: number; loggedUserId?: string }) => {
 	const pageSize = 12;
 
 	const [posts, totalCount] = await Promise.all([
@@ -143,18 +143,31 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 	// Get rating sums for all posts in parallel
 	const postsWithRatings = await Promise.all(
 		posts.map(async (post) => {
-			const ratingResult = await db.ratings.aggregate({
-				where: {
-					id_post: post.id,
-				},
-				_sum: {
-					value: true,
-				},
-			});
+			const [ratingResult, userRating] = await Promise.all([
+				db.ratings.aggregate({
+					where: {
+						id_post: post.id,
+					},
+					_sum: {
+						value: true,
+					},
+				}),
+				// Solo buscar rating del usuario si está logueado
+				loggedUserId ? db.ratings.findFirst({
+					where: {
+						id_post: post.id,
+						id_user: loggedUserId,
+					},
+					select: {
+						value: true,
+					},
+				}) : Promise.resolve(null)
+			]);
 
 			return {
 				...post,
-				rating: ratingResult._sum.value || 0
+				rating: ratingResult._sum.value || 0,
+				ratingValue: userRating?.value || 0 // 1, -1, o 0
 			};
 		})
 	);
@@ -169,8 +182,8 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 	};
 };
 
-export const getPostById = async (PostID: string) => {
-	const [post, ratingResult] = await Promise.all([
+export const getPostById = async ({PostID, userId}: {PostID: string, userId?: string}) => {
+	const [post, ratingResult, userRating] = await Promise.all([
 		db.post.findFirst({
 			select: {
 				id: true,
@@ -220,7 +233,17 @@ export const getPostById = async (PostID: string) => {
 			_sum: {
 				value: true,
 			},
-		})
+		}),
+		// Solo buscar rating del usuario si está logueado
+		userId ? db.ratings.findFirst({
+			where: {
+				id_post: PostID,
+				id_user: userId,
+			},
+			select: {
+				value: true,
+			},
+		}) : Promise.resolve(null)
 	]);
 
 	if (!post) {
@@ -229,7 +252,8 @@ export const getPostById = async (PostID: string) => {
 
 	return {
 		...post,
-		rating: ratingResult._sum.value || 0
+		rating: ratingResult._sum.value || 0,
+		ratingValue: userRating?.value || 0 // 1, -1, o 0
 	};
 };
 
