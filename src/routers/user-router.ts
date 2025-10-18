@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserById, getUserPersonalInfoByID, getUsers, updatePersonalInfo } from "../services/user-service";
+import { deleteUserById, getUserById, getUserPersonalInfoByID, getUsers, updatePersonalInfo } from "../services/user-service";
 import { getCommentsByUser } from "../services/comment-service";
 import { BadRequest, Forbidden, NotFound, Unauthorized } from "../errors/server_errors";
 import { isAuthMiddleware } from "../middleware/authMiddleware";
@@ -27,6 +27,30 @@ userRouter.post("/", async (req, res, next) => {
 		next(error)
 	}
 });
+
+userRouter.delete("/delete/:id", isAuthMiddleware, async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		if (!id) {
+			throw new BadRequest("Se requiere el ID del usuario a eliminar")
+		}
+		const user = await getUserById(id);
+		if (!user) {
+			throw new NotFound("No existe ese usuario")
+		}
+		await deleteUserById(id);
+		console.log(`Usuario ${id} eliminado`);
+		res.status(204).send();
+	} catch (error) {
+		next(error)
+	}
+});
+
+
+
+
+
+
 
 userRouter.get("/:id", async (req, res, next) => {
 	try {

@@ -3,7 +3,7 @@ model CommentThread {
   content    String @db.Text
   id_user    String
   id_comment String
-
+  created_at DateTime  @default(now())
   user    User    @relation(fields: [id_user], references: [id], onDelete: Cascade)
   comment Comment @relation(fields: [id_comment], references: [id], onDelete: Cascade)
 

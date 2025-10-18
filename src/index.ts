@@ -12,6 +12,7 @@ import { setupMinioBucket } from "./minio/minio-setup";
 import { trendingRouter } from "./routers/trending-router";
 import { tagRouter } from "./routers/tag-router";
 import { ratingRouter } from "./routers/rating-router";
+import { commentThreadRouter } from "./routers/commentThread-router";
 import passport from "passport";
 import "./services/providers/google-service"; // ✅ Importar para registrar la estrategia de Google
 import "./services/providers/github-service"
@@ -48,6 +49,7 @@ app.use("/api/ratings", ratingRouter);
 app.use("/api/trends", trendingRouter);
 app.use("/api/tags", tagRouter);
 app.use("/api/pfp" , pfpRouter)
+app.use("/api/comment-threads", commentThreadRouter);
 
 // Health check
 app.get("/health", (req, res) => {

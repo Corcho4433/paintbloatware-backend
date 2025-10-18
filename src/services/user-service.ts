@@ -31,6 +31,14 @@ export const getUserById = async (UserID: string) => {
 	});
 };
 
+export const deleteUserById = async (UserID: string) => {
+	return await db.user.delete({
+		where: {
+			id: UserID
+		}
+	});
+};
+
 export const getUserPersonalInfoByID = async (UserID: string) => {
 	return await db.user.findFirst({
   where: {

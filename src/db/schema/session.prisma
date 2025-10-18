@@ -1,8 +1,15 @@
+enum SessionState {
+  ACTIVE
+  REVOKED
+}
+
 model Session {
   id            String @id @default(cuid())
   id_user       String
   refresh_token String @map("refresh_token")
   user          User   @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  created_at    DateTime @default(now())
+  state SessionState @default(ACTIVE)
 
   @@unique([id_user, refresh_token])
   @@map("sessions")

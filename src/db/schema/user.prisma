@@ -5,6 +5,7 @@ model User {
   password      String?
   urlPfp        String?
   description   String?
+  created_at   DateTime        @default(now())
   comments      Comment[]
   posts         Post[]
   ratings       Ratings[]
