@@ -1,13 +1,4 @@
-
 import { db } from "../db/db";
-
-// interfaces
-interface Rating {
-  id_post: string,
-  id_user: string,
-  value: number,
-}
-
 
 // methods
 export const getTrendingTags = async () => {
@@ -51,15 +42,3 @@ export const getTrendingTags = async () => {
   return trendingTags;
 };
 
-export const likePost = async ( rating: Rating ) => {
-
-  return await db.ratings.create({
-    data: {
-      id_post: rating.id_post,
-      id_user: rating.id_user,
-      value: rating.value,
-      
-    }
-  })
-
-}
