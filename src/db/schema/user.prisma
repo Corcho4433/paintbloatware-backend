@@ -5,12 +5,14 @@ model User {
   password      String?
   urlPfp        String?
   description   String?
-  created_at   DateTime        @default(now())
+  created_at    DateTime        @default(now())
   comments      Comment[]
   posts         Post[]
   ratings       Ratings[]
   sessions      Session[]
   CommentThread CommentThread[]
   accounts      Account[]
+  Admin         Admin[]
+
   @@map("users")
 }
