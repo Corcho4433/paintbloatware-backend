@@ -126,6 +126,7 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 					select: {
 						name: true,
 						id: true,
+						urlPfp: true
 					},
 				},
 				_count: {
@@ -196,7 +197,7 @@ export const getPostById = async (PostID: string) => {
 						tag: {
 							select: {
 								id: true,
-								name: true
+								name: true,
 							}
 						}
 					}
@@ -354,6 +355,7 @@ export const getPostsByTag = async (tagName: string, { page = 1 }: { page?: numb
 					select: {
 						name: true,
 						id: true,
+						urlPfp: true
 					},
 				},
 				_count: {

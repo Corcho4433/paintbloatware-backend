@@ -38,7 +38,7 @@ export const getCommentThreadsByComment = async ({ id_comment, page = 1 }: { id_
     db.commentThread.findMany({
       where: { id_comment },
       include: {
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, urlPfp:true } },
       },
       orderBy: { created_at: "asc" },
       skip: (page - 1) * pageSize,
