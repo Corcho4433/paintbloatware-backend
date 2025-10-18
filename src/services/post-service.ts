@@ -110,6 +110,9 @@ export const getPostsByUser = async ({ userID, page }: { userID: string; page: n
 			where: {
 				id_user: userID,
 			},
+			orderBy: {
+				created_at: "desc"
+			},
 			skip: (page - 1) * pageSize,
 			take: pageSize,
 			select: {
