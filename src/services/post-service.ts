@@ -93,6 +93,15 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 	};
 };
 
+export const deletePost = async (postId: string, userId: string) => {
+	return await db.post.delete({
+		where: {
+			id: postId,
+			id_user: userId
+		}
+	})
+}
+
 export const getPostsByUser = async ({ userID, page }: { userID: string; page: number }) => {
 	const pageSize = 12;
 

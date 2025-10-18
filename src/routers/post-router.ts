@@ -5,6 +5,7 @@ import {
 	getPosts,
 	getPostsByUser,
 	getPostsByTag,
+	deletePost,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
 import { isAuthMiddleware, optionalAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
@@ -116,6 +117,27 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 
 		if (!post) {
 			throw new BadRequest("No se pudo crear el post");
+		}
+
+		res.status(200).json({ post: post });
+	} catch (error) {
+		next(error);
+	}
+});
+
+postRouter.delete("/:id", isAuthMiddleware, async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		if (!id) {
+			throw new BadRequest("Debes enviar un post id");
+		}
+
+		const user = req.user as UserFromToken;
+
+		const post = await deletePost(id, user.id);
+
+		if (!post) {
+			throw new BadRequest("No se pudo eliminar el post");
 		}
 
 		res.status(200).json({ post: post });
