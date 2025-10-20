@@ -99,13 +99,11 @@ authRouter.post("/logout", isAuthMiddleware, async (req, res, next) => {
 	try {
 		const user = req.user as UserFromToken;
 		const { refresh_token } = req.cookies;
-
 		if (!refresh_token) {
 			throw new BadRequest("No hay refresh token");
 		}
 
 		await deleteLastSession(user.id, refresh_token);
-
 		res
 			.clearCookie("session_token")
 			.clearCookie("refresh_token")

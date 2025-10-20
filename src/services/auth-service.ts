@@ -63,17 +63,26 @@ export const generateUserSession = async (id_user: string) => {
 };
 
 export const deleteLastSession = async (id_user: string, refresh_token: string) => {
-	try {
-		const refresh_token_hashed = await Bun.password.hash(refresh_token);
-		await db.session.deleteMany({
-			where: {
-				id_user,
-				refresh_token: refresh_token_hashed,
-			},
-		});
-	} catch (error) {
-		throw new Error("Error al borrar la sesión :c");
-	}
+			try {
+				// Find all sessions for the user
+				const sessions = await db.session.findMany({
+					where: { id_user },
+				});
+				let deleted = false;
+				for (const session of sessions) {
+					if (await Bun.password.verify(refresh_token, session.refresh_token)) {
+						await db.session.delete({ where: { id: session.id } });
+						console.log("Deleted session:", session);
+						deleted = true;
+					}
+				}
+				if (!deleted) {
+					console.log("No session found to delete for user:", id_user);
+				}
+			} catch (error) {
+				console.log("Error deleting session:", error);
+				throw new Error("Error al borrar la sesión :c");
+			}
 };
 
 export const verifyRefreshToken = async (refresh_token: string) => {
