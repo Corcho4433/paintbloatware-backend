@@ -86,43 +86,47 @@ export const deleteLastSession = async (id_user: string, refresh_token: string) 
 };
 
 export const verifyRefreshToken = async (refresh_token: string) => {
-	try {
-		let payload: JwtPayload;
-		const refresh_token_hashed = await Bun.password.hash(refresh_token);
 		try {
-			payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
-	
-			if (!payload.user_id) {
-				throw new Error("NO hay user_id en el token :c");
-			}
-		} catch (error) {
-			if (error instanceof TokenExpiredError) {
-				throw new Error("Token expirado :c");
-			}
-		
-			throw new Error("Token invalido :c");
-		}
-
-		const user = await db.user.findFirst({
-			where: {
-				id: payload.user_id,
-				sessions: {
-					some: { 
-						refresh_token: refresh_token_hashed
-					},
+			let payload: JwtPayload;
+			try {
+				payload = verify(refresh_token, process.env.REFRESH_TOKEN_SECRET) as JwtPayload; 
+				if (!payload.user_id) {
+					throw new Error("NO hay user_id en el token :c");
 				}
-			},
-		});
+			} catch (error) {
+				if (error instanceof TokenExpiredError) {
+					throw new Error("Token expirado :c");
+				}
+				throw new Error("Token invalido :c");
+			}
 
-		if (!user) {
-			throw new Error("Usuario no encontrado o sesión inválida");
+			// Find all sessions for the user
+			const sessions = await db.session.findMany({
+				where: { id_user: payload.user_id },
+			});
+			let validSession = null;
+			for (const session of sessions) {
+				if (await Bun.password.verify(refresh_token, session.refresh_token)) {
+					validSession = session;
+					break;
+				}
+			}
+			if (!validSession) {
+				throw new Error("Usuario no encontrado o sesión inválida");
+			}
+
+			// Get the user
+			const user = await db.user.findUnique({
+				where: { id: payload.user_id }
+			});
+			if (!user) {
+				throw new Error("Usuario no encontrado");
+			}
+			return user;
+		} catch (error) {
+			console.log("Error in verifyRefreshToken:", error);
+			throw new Error((error as Error).message);
 		}
-
-		return user;
-	} catch (error) {
-		console.log("Error in verifyRefreshToken:", error);
-		throw new Error((error as Error).message);
-	}
 };
 
 export const verifySessionToken = async (session_token: string) => {
