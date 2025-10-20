@@ -28,6 +28,7 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 					select: {
 						name: true,
 						id: true,
+						urlPfp: true
 					},
 				},
 				_count: {
