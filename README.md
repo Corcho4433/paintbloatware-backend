@@ -18,7 +18,6 @@ Para levantar la base de datos:
 
 # TODO List
 
-> Testear endpoints y validar que tengan respuestas
 > Likear posts ✅
 > Paginacion para los comentarios ✅
 > Paginacion para los threads de los comentarios ✅
@@ -33,9 +32,10 @@ Para levantar la base de datos:
 > Validar admin en caso de subir una tag 
 > Agregat ratings a los servicios del post ✅ 
 > Agregar la fecha de creacion a los comentarios ✅ 
-
 > AGREGAR ENDPOINT PARA BORRAR USUARIOS /api/users/delete/:id ✅
-
-
+> Admin middleware 
+> Agregar endpoints para funcionalidad de borrar de admin: Borrar posts, comentarios, respuestas, borrar usuarios
+> Agregar endpoints para funcionalidad de ver todo de la pagina: Obtener todos los posts, comentarios, respuestas.
+> TAGS: agregar tags, modificar tags, borrar tags
 
 GRACIAS CHIMI ✅
