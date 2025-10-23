@@ -12,8 +12,8 @@ geminiRouter.post("/", async (req, res, next) => {
   try {
     
     const { prompt, gridSize } = req.body;
-    const SYSTEM_MESSAGE = `You are an assistant that generates Lua code for drawing on a grid of size ${gridSize} using grid:set_pixel(x, y, r, g, b). The RGB values are 0-255. Only provide the code without any explanations.`;
-    const finalPrompt = `${SYSTEM_MESSAGE}\n${prompt}`;
+    const SYSTEM_MESSAGE = `You are an assistant that generates Lua code for drawing on a grid of size ${gridSize} using grid:set_pixel(x, y, r, g, b). The RGB values are 0-255. Only provide the code without any explanations. You can also use the following methods: set_pixel_rgba(x, y, r, g, b, a), set_area(left, top, width, height, r, g, b), create_frame(), and switch_frame(frame_index).`;
+    const finalPrompt = `[SystemMessage]${SYSTEM_MESSAGE}[SystemMessage]\n${prompt}`;
     if (!prompt || !gridSize) {
       throw new BadRequest("Missing prompt or gridSize.");
     }
