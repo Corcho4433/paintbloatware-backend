@@ -23,8 +23,8 @@ export const getTrendingTags = async () => {
     },
   });
 
-  const tagLikesCount: { [key: string] : number } = {};
-
+  // Count likes for each tag
+  const tagLikesCount: { [key: string]: number } = {};
   recentRatings.forEach((rating) => {
     rating.post.TagsForPost.forEach((tagForPost) => {
       const tagName = tagForPost.tag.name;
@@ -32,13 +32,18 @@ export const getTrendingTags = async () => {
     });
   });
 
-  const trendingTags = Object.entries(tagLikesCount)
-    .map(([name, likeCount]) => ({
-      name,
-      likeCount,
-    }))
-    .sort((a, b) => (b.likeCount as number) - (a.likeCount as number));
+  // Get all tags
+  const allTags = await db.tags.findMany({ select: { name: true } });
 
-  return trendingTags;
+  // Map all tags to include likeCount, default 0
+  const tagsWithLikes = allTags.map(tag => ({
+    name: tag.name,
+    likeCount: tagLikesCount[tag.name] || 0
+  }));
+
+  // Sort by likeCount descending
+  tagsWithLikes.sort((a, b) => b.likeCount - a.likeCount);
+
+  return { tags: tagsWithLikes };
 };
 
