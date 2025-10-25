@@ -5,13 +5,13 @@ import type { Account, User } from '@prisma/client';
 import { createOAuthUser } from '../user-service';
 import { generateRandomUsername } from '../../utils/randomName';
 import { ValidationError } from '../../errors/server_errors';
-
+const frontendPath = process.env.FRONTEND_PATH || "http://localhost:5173";
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID!,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  callbackURL: "http://localhost:3000/api/auth/google/callback"
+  callbackURL: `${frontendPath}/api/auth/google/callback`
 }, async (accessToken, verifyRefreshToken, profile, done) => {
-
+  console.log('User authenticated via Google:', profile);
   try {
     const email = profile.emails?.[0]?.value
     if (!email) {

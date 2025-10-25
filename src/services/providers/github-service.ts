@@ -6,11 +6,11 @@ import type { Account, User } from '@prisma/client';
 import { createOAuthUser } from '../user-service';
 import { generateRandomUsername } from '../../utils/randomName';
 import { ValidationError } from '../../errors/server_errors';
-
+const frontendPath = process.env.FRONTEND_PATH || "http://localhost:5173";
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID!,
   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  callbackURL: "http://localhost:3000/api/auth/github/callback"
+  callbackURL: `${frontendPath}/api/auth/github/callback`
 }, async (accessToken : string, refreshToken: string, profile: Profile, done: (error: any, user?: any) => void) => {
 
   try {

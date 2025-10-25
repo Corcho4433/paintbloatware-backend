@@ -32,6 +32,6 @@ githubRouter.get('/github/callback',
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
       })
       .status(200)
-      .redirect(`http://localhost:5173/oauth/success?id=${user.id}&pfp=${encodeURIComponent(user.urlPfp || '')}`);
+      .redirect(`${frontendPath}/oauth/success?id=${user.id}&pfp=${encodeURIComponent(user.urlPfp || '')}`);
   }
 )

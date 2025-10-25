@@ -18,6 +18,7 @@ googleRouter.get('/google/callback',
   async (req, res) => {
     const user = req.user as User;
     const {session_token, refresh_token} = await generateUserSession(user.id);
+		console.log('User authenticated via Google:', user);
     res
 			.cookie("session_token", session_token, {
 				httpOnly: true,
@@ -32,6 +33,6 @@ googleRouter.get('/google/callback',
 				maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
 			})
 			.status(200)
-      .redirect(`http://localhost:5173/oauth/success?id=${user.id}&pfp=${encodeURIComponent(user.urlPfp || '')}`);
+      .redirect(`${frontendPath}/oauth/success?id=${user.id}&pfp=${encodeURIComponent(user.urlPfp || '')}`);
   }
 )
