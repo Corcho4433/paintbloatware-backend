@@ -22,7 +22,7 @@ export const uploadToMinio = async (file: Express.Multer.File, userId: string) =
     );
 
     // Retornar la URL pública del archivo
-    const fileUrl = `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${bucketName}/${fileName}`;
+    const fileUrl = `/minio/${bucketName}/${fileName}`;
     return fileUrl;
   } catch (error) {
     console.error("Error al subir la imagen a MinIO:", error);
