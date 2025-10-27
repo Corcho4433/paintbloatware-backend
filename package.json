@@ -11,7 +11,9 @@
 		"resetdb": "bun run src/utils/db.ts resetDatabase",
 		"migrate": "prisma migrate dev --schema src/db/schema",
 		"generate": "prisma generate --no-engine --schema src/db/schema",
-		"seed": "bun run src/db/seed.ts"
+		"seed": "bun run src/db/seed.ts",
+		"build": "bun build ./src/index.ts --outdir ./dist --target bun",
+		"start": "bun run ./dist/index.js"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

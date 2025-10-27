@@ -71,7 +71,7 @@ export const deleteLastSession = async (id_user: string, refresh_token: string) 
 				let deleted = false;
 				for (const session of sessions) {
 					if (await Bun.password.verify(refresh_token, session.refresh_token)) {
-						await db.session.delete({ where: { id: session.id } });
+						await db.session.deleteMany({ where: { id: session.id } });
 						console.log("Deleted session:", session);
 						deleted = true;
 					}
