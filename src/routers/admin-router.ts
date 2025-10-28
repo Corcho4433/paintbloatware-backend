@@ -1,5 +1,4 @@
 import express from "express";
-import { adminMiddleware, isAuthMiddleware } from "../middleware/authMiddleware";
 import { deleteComment, deletePost, deleteUser, getAllComments, getAllUsers, getDashboardData } from "../services/admin-service";
 import { BadRequest, ServerError } from "../errors/server_errors";
 import { getPosts } from "../services/post-service";
@@ -7,7 +6,7 @@ import { addTag } from "../services/tag-service";
 export const adminRouter = express.Router();
 
 
-adminRouter.get("/dashboard",isAuthMiddleware,adminMiddleware ,async (req, res, next) => {
+adminRouter.get("/dashboard" ,async (req, res, next) => {
   try {
     // Lógica para obtener datos del dashboard administrativo
     const dashboardData = await getDashboardData();
@@ -17,7 +16,15 @@ adminRouter.get("/dashboard",isAuthMiddleware,adminMiddleware ,async (req, res, 
   }
 });
 
-adminRouter.get("/users", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.get("/verify", async (req, res, next) => {
+  try {
+    res.status(200).json({ message: "Admin verified" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminRouter.get("/users", async (req, res, next) => {
   try {
     const page = Number.parseInt(req.query.page as string) || 1;
     const users = await getAllUsers(page);
@@ -27,7 +34,7 @@ adminRouter.get("/users", isAuthMiddleware, adminMiddleware, async (req, res, ne
   }
 });
 
-adminRouter.get("/comments", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.get("/comments", async (req, res, next) => {
   try {
     const page = Number.parseInt(req.query.page as string) || 1;  
     const comments = await getAllComments(page);
@@ -37,7 +44,7 @@ adminRouter.get("/comments", isAuthMiddleware, adminMiddleware, async (req, res,
   }
 });
 
-adminRouter.get("/posts", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.get("/posts", async (req, res, next) => {
   try {
     const page = Number.parseInt(req.query.page as string) || 1;
     const posts = await getPosts({page: page, userId: undefined});
@@ -47,7 +54,7 @@ adminRouter.get("/posts", isAuthMiddleware, adminMiddleware, async (req, res, ne
   }
 });
 
-adminRouter.post("/upload",isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.post("/upload", async (req, res, next) => {
   try {
     const { tag_name } = req.body;
 
@@ -67,7 +74,7 @@ adminRouter.post("/upload",isAuthMiddleware, adminMiddleware, async (req, res, n
       next(error);
   }
 })
-adminRouter.delete("/user/:id", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.delete("/user/:id", async (req, res, next) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -80,7 +87,7 @@ adminRouter.delete("/user/:id", isAuthMiddleware, adminMiddleware, async (req, r
   }
 });
 
-adminRouter.delete("/comment/:id", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.delete("/comment/:id", async (req, res, next) => {
   try {
     const commentId = req.params.id;
     if (!commentId) {
@@ -93,7 +100,7 @@ adminRouter.delete("/comment/:id", isAuthMiddleware, adminMiddleware, async (req
   }
 });
 
-adminRouter.delete("/post/:id", isAuthMiddleware, adminMiddleware, async (req, res, next) => {
+adminRouter.delete("/post/:id", async (req, res, next) => {
   try {
     const postId = req.params.id;
     if (!postId) {

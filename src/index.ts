@@ -19,6 +19,8 @@ import "./services/providers/github-service"
 import { githubRouter } from "./routers/providers/github-router";
 import { pfpRouter } from "./routers/pfp-router";
 import { geminiRouter } from "./routers/gemini-router";
+import { adminRouter } from "./routers/admin-router";
+import { adminMiddleware, isAuthMiddleware } from "./middleware/authMiddleware";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +54,7 @@ app.use("/api/tags", tagRouter);
 app.use("/api/pfp" , pfpRouter)
 app.use("/api/comment-threads", commentThreadRouter);
 app.use("/api/gemini", geminiRouter);
+app.use("/admin", isAuthMiddleware, adminMiddleware, adminRouter);
 
 // Health check
 app.get("/health", (req, res) => {
