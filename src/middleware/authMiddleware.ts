@@ -1,11 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { verify, type JwtPayload, TokenExpiredError } from "jsonwebtoken";
-import { verifySessionToken } from "../services/auth-service";
+import { verifyAdminUser, verifySessionToken } from "../services/auth-service";
 
 export interface UserFromToken {
 	id: string;
 }
 
+export interface AdminFromToken extends UserFromToken {
+	admin: true;
+}
 export const isAuthMiddleware = async (
 	req: Request,
 	res: Response,
@@ -78,4 +81,26 @@ export const optionalAuthMiddleware = async (
 		req.user = undefined;
 		next();
 	}
+};
+
+
+export const adminMiddleware = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	const user = req.user as UserFromToken;
+	if (!req.user) {
+		return res.status(403).json({ message: "No tienes permisos para acceder a esta ruta" });
+	}
+	
+	// Aquí puedes agregar lógica adicional para verificar si el usuario es admin
+	const isAdmin = await verifyAdminUser(user.id);
+
+	if (!isAdmin) {
+		return res.status(403).json({ message: "No tienes permisos de administrador" });
+	}
+	req.user = {admin: true, id: user.id};
+
+	next();
 };
