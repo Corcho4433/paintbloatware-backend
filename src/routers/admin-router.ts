@@ -1,8 +1,8 @@
 import express from "express";
-import { deleteComment, deletePost, deleteUser, getAllComments, getAllUsers, getDashboardData } from "../services/admin-service";
+import { addAdmin, deleteComment, deletePost, deleteTag, deleteUser, getAllComments, getAllUsers, getDashboardData } from "../services/admin-service";
 import { BadRequest, ServerError } from "../errors/server_errors";
 import { getPosts } from "../services/post-service";
-import { addTag } from "../services/tag-service";
+import { addTag, getAllTags } from "../services/tag-service";
 export const adminRouter = express.Router();
 
 
@@ -54,26 +54,63 @@ adminRouter.get("/posts", async (req, res, next) => {
   }
 });
 
-adminRouter.post("/upload", async (req, res, next) => {
+adminRouter.get("/tags", async (req, res, next) => {
   try {
-    const { tag_name } = req.body;
+    const page = Number.parseInt(req.query.page as string) || 1;
+    const tags = await getAllTags(page);
+    res.json(tags);
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminRouter.post("/tags", async (req, res, next) => {
+  try {
+    const { name } = req.body;
 
 
 
-    const result = await addTag(tag_name);
+    const result = await addTag(name);
     if (!result) {
       throw new ServerError("fail");
     }
 
 
     res.status(200).json({
-      status: "Added tag" + tag_name,
+      status: "Added tag" + name,
     })
 
   } catch(error) {
       next(error);
   }
 })
+
+adminRouter.post("/admin/:id", async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      throw new BadRequest("User ID is required");
+    }
+    await addAdmin(userId);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminRouter.delete("/tag/:id", async (req, res, next) => {
+  try {
+    const tagId = req.params.id;
+    if (!tagId) {
+      throw new BadRequest("Tag ID is required");
+    }
+    await deleteTag(tagId);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
 adminRouter.delete("/user/:id", async (req, res, next) => {
   try {
     const userId = req.params.id;

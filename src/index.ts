@@ -54,7 +54,7 @@ app.use("/api/tags", tagRouter);
 app.use("/api/pfp" , pfpRouter)
 app.use("/api/comment-threads", commentThreadRouter);
 app.use("/api/gemini", geminiRouter);
-app.use("/admin", isAuthMiddleware, adminMiddleware, adminRouter);
+app.use("/api/admin", isAuthMiddleware, adminMiddleware, adminRouter);
 
 // Health check
 app.get("/health", (req, res) => {

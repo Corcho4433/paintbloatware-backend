@@ -8,7 +8,7 @@ export const tagRouter = express.Router();
 tagRouter.get("/", async (req, res,next) => {
   try {
 
-    const tag_res = await getAllTags();
+    const tag_res = await getAllTags(1);
 
   
     res.status(200).json({

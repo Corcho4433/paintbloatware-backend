@@ -9,10 +9,16 @@ export const addTag = async (tag_name: string) => {
 }
 
 
-export const getAllTags = async () => {
-  return await db.tags.findMany({
+export const getAllTags = async (page:number) => {
+  const pageSize = 20;
+  const [tags, totalTags] = await Promise.all([ db.tags.findMany({
     select: {
+      id: true,
       name: true,
-    }
-  })
+    },
+    skip: (page - 1) * pageSize,
+    take: pageSize
+  }), db.tags.count() ]);
+  const maxPages = Math.ceil(totalTags / pageSize);
+  return { tags, totalTags, maxPages, currentPage: page };
 }

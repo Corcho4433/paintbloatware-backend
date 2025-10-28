@@ -17,22 +17,67 @@ export const getDashboardData = async () => {
 
 export const getAllUsers = async (page: number) => {
   const pageSize = 10;
-  const users = await db.user.findMany({
-    skip: (page - 1) * pageSize,
-     orderBy: { created_at: 'desc' },
-    take: pageSize
-  });
-  return users;
+  const [users, totalUsers] = await Promise.all([
+    db.user.findMany({
+      skip: (page - 1) * pageSize,
+      orderBy: { created_at: 'desc' },
+      take: pageSize,
+      include: {
+        Admin: true,
+      },
+    }),
+    db.user.count()
+  ]);
+
+  const usersWithAdminFlag = users.map(user => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    urlPfp: user.urlPfp,
+    description: user.description,
+    created_at: user.created_at,
+    isAdmin: user.Admin.length > 0,
+  }));
+
+  const maxPages = Math.ceil(totalUsers / pageSize);
+  
+  return {
+    users: usersWithAdminFlag,
+    totalUsers,
+    maxPages,
+    currentPage: page
+  };
 };
 
 export const getAllComments = async (page: number) => {
   const pageSize = 10;
-  const comments = await db.comment.findMany({
-    skip: (page - 1) * pageSize,
-    orderBy: { created_at: 'desc' },
-    take: pageSize
-  });
-  return comments;
+  const [comments,totalComments] = await Promise.all([
+    db.comment.findMany({
+      skip: (page - 1) * pageSize,
+      orderBy: { created_at: 'desc' },
+      take: pageSize,
+      select: {
+        id: true,
+      content: true,
+      created_at: true,
+      user: {
+        select: {
+          id:true,
+          name:true,
+          urlPfp:true
+        }
+      },
+      post: {
+        select: {
+          id:true,
+        }
+      }
+    }
+  }),
+    db.comment.count()
+  ]);
+  const maxPages = Math.ceil(totalComments / pageSize);
+  return { comments, totalComments, maxPages, currentPage: page };
 };
 
 export const deleteComment = async (commentId: string) => {
@@ -52,3 +97,18 @@ export const deleteUser = async (userId: string) => {
     where: { id: userId }
   });
 }
+
+export const deleteTag = async (tagId: string) => {
+  await db.tags.delete({
+    where: { id: tagId }
+  });
+}
+
+export const addAdmin = async (userId: string) => {
+  await db.admin.create({
+    data: {
+      user: {
+        connect: { id: userId }
+      }
+    }
+  });}

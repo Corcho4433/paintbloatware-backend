@@ -164,8 +164,6 @@ export const verifyAdminUser = async (user_id: string) => {
 	const user = await db.admin.findFirst({
 		where: { userId: user_id }
 	});
-	if (!user) {
-		throw new Error("Usuario no encontrado");
-	}
+
 	return user;
 };
