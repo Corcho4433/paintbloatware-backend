@@ -1,5 +1,5 @@
 import express from "express";
-import { addAdmin, deleteComment, deletePost, deleteTag, deleteUser, getAllComments, getAllUsers, getDashboardData } from "../services/admin-service";
+import { addAdmin, deleteAdmin, deleteComment, deletePost, deleteTag, deleteUser, getAllComments, getAllUsers, getDashboardData } from "../services/admin-service";
 import { BadRequest, ServerError } from "../errors/server_errors";
 import { getPosts } from "../services/post-service";
 import { addTag, getAllTags } from "../services/tag-service";
@@ -92,6 +92,19 @@ adminRouter.post("/admin/:id", async (req, res, next) => {
       throw new BadRequest("User ID is required");
     }
     await addAdmin(userId);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminRouter.delete("/admin/:id", async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      throw new BadRequest("User ID is required");
+    }
+    await deleteAdmin(userId);
     res.status(204).send();
   } catch (error) {
     next(error);

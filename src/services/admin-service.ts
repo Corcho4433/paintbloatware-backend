@@ -43,7 +43,7 @@ export const getAllUsers = async (page: number) => {
   
   return {
     users: usersWithAdminFlag,
-    totalUsers,
+    totalCount: totalUsers,
     maxPages,
     currentPage: page
   };
@@ -51,7 +51,7 @@ export const getAllUsers = async (page: number) => {
 
 export const getAllComments = async (page: number) => {
   const pageSize = 10;
-  const [comments,totalComments] = await Promise.all([
+  const [comments,totalCount] = await Promise.all([
     db.comment.findMany({
       skip: (page - 1) * pageSize,
       orderBy: { created_at: 'desc' },
@@ -76,8 +76,8 @@ export const getAllComments = async (page: number) => {
   }),
     db.comment.count()
   ]);
-  const maxPages = Math.ceil(totalComments / pageSize);
-  return { comments, totalComments, maxPages, currentPage: page };
+  const maxPages = Math.ceil(totalCount / pageSize);
+  return { comments,  totalCount, maxPages, currentPage: page };
 };
 
 export const deleteComment = async (commentId: string) => {
@@ -112,3 +112,9 @@ export const addAdmin = async (userId: string) => {
       }
     }
   });}
+
+  export const deleteAdmin = async (userId: string) => {
+    await db.admin.deleteMany({
+      where: { userId: userId }
+    });
+  }
