@@ -14,6 +14,16 @@ export const getDashboardData = async () => {
     ratingCount
   };
 };
+const obfuscateEmail = (email: string): string => {
+  const [username, domain] = email.split('@');
+  if (!username || !domain) return email;
+  
+  const visibleChars = Math.min(3, Math.floor(username.length / 2));
+  const obfuscated = username.substring(0, visibleChars) + '***';
+  
+  return `${obfuscated}@${domain}`;
+};
+
 
 export const getAllUsers = async (page: number) => {
   const pageSize = 10;
@@ -32,7 +42,7 @@ export const getAllUsers = async (page: number) => {
   const usersWithAdminFlag = users.map(user => ({
     id: user.id,
     name: user.name,
-    email: user.email,
+    email: obfuscateEmail(user.email),
     urlPfp: user.urlPfp,
     description: user.description,
     created_at: user.created_at,
