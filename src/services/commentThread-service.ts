@@ -40,7 +40,7 @@ export const getCommentThreadsByComment = async ({ id_comment, page = 1 }: { id_
       include: {
         user: { select: { id: true, name: true, urlPfp:true } },
       },
-      orderBy: { created_at: "asc" },
+      orderBy: { created_at: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

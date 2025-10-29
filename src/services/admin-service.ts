@@ -71,6 +71,9 @@ export const getAllComments = async (page: number) => {
         select: {
           id:true,
         }
+      },
+      _count: {
+        select: { CommentThread: true }
       }
     }
   }),

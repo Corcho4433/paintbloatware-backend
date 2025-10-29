@@ -30,6 +30,7 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 			},
 			skip: (page - 1) * pageSize,
 			take: pageSize,
+			orderBy: { created_at: 'desc' },
 			select: {
 				id: true,
 				content: true,
