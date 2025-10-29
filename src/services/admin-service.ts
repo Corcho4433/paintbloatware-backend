@@ -89,6 +89,12 @@ export const deleteComment = async (commentId: string) => {
   }); 
 };
 
+export const deleteCommentThread = async (threadId: string) => {
+  await db.commentThread.delete({
+    where: { id: threadId }
+  });
+}
+
 export const deletePost = async (postId: string) => {
   await db.post.delete({
     where: { id: postId }
