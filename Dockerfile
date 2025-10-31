@@ -1,5 +1,10 @@
-# paintbloatware-backend/Dockerfile
 FROM oven/bun:latest
+
+# Instalar tzdata para que Node/Bun pueda usar zonas horarias
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+
+# Establecer la zona horaria
+ENV TZ=America/Argentina/Buenos_Aires
 
 WORKDIR /app
 
@@ -21,5 +26,5 @@ RUN bun run build
 # Exponer puerto
 EXPOSE 60014
 
-# Ejecutar el código compilado: bun run ./dist/index.js
+# Ejecutar el código compilado
 CMD ["bun", "run", "./dist/index.js"]
