@@ -12,11 +12,14 @@ RUN bun install --frozen-lockfile
 # Copiar el resto del código
 COPY . .
 
-# Build de la aplicación
+# Generar Prisma Client
+RUN bunx prisma generate --no-engine --schema src/db/schema
+
+# Build de la aplicación (compila TS a JS en ./dist)
 RUN bun run build
 
 # Exponer puerto
 EXPOSE 60014
 
-# Comando para iniciar la aplicación
-CMD ["bun", "run", "start"]
+# Ejecutar el código compilado: bun run ./dist/index.js
+CMD ["bun", "run", "./dist/index.js"]
