@@ -13,7 +13,7 @@ RUN bun install --frozen-lockfile
 COPY . .
 
 # Generar Prisma Client
-RUN bun prisma
+RUN bun generate
 
 # Build de la aplicación (compila TS a JS en ./dist)
 RUN bun run build
