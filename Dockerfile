@@ -1,12 +1,11 @@
-FROM oven/bun:latest
-
-# Instalar tzdata para que Node/Bun pueda usar zonas horarias
-RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
-
-# Establecer la zona horaria
-ENV TZ=America/Argentina/Buenos_Aires
-
+FROM oven/bun:1-alpine
 WORKDIR /app
+
+# Instalar OpenSSL y timezone data
+RUN apk add --no-cache openssl tzdata
+
+# Configurar zona horaria
+ENV TZ=UTC
 
 # Copiar package.json y lockfile
 COPY package.json bun.lockb* ./
@@ -17,14 +16,14 @@ RUN bun install --frozen-lockfile
 # Copiar el resto del código
 COPY . .
 
-# Generar Prisma Client
-RUN bun generate
+# Generar Prisma Client (usando npx porque Prisma tiene mejor soporte con Node)
+RUN bunx prisma generate
 
-# Build de la aplicación (compila TS a JS en ./dist)
+# Build de la aplicación
 RUN bun run build
 
 # Exponer puerto
 EXPOSE 60014
 
-# Ejecutar el código compilado
+# Ejecutar con node en lugar de bun para mejor compatibilidad con Prisma
 CMD ["bun", "run", "./dist/index.js"]
