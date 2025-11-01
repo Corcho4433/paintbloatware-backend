@@ -94,6 +94,123 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 	};
 };
 
+export const getPostsRandomized = async ({ page, userId }: { page: number; userId?: string }) => {
+  const pageSize = 12;
+  
+  const likedPostIds = userId ? await db.ratings.findMany({
+    where: {
+      id_user: userId,
+      value: 1
+    },
+    select: {
+      id_post: true
+    }
+  }).then(ratings => ratings.map(r => r.id_post)) : [];
+
+  const totalCount = await db.post.count();
+  
+  // Generate random offset instead of sequential pagination
+  const maxOffset = Math.max(0, totalCount - (pageSize * 3));
+  const randomOffset = Math.floor(Math.random() * (maxOffset + 1));
+  
+  const posts = await db.post.findMany({
+    skip: randomOffset, // Offset aleatorio en lugar de paginación secuencial
+    take: pageSize * 3,
+    select: {
+      id: true,
+      url_bucket: true,
+      content: true,
+      description: true,
+      created_at: true,
+      edited: true,
+      user: {
+        select: {
+          name: true,
+          id: true,
+          urlPfp: true
+        },
+      },
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+      TagsForPost: {
+        select: {
+          tag: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      }
+    },
+  });
+
+  // ... resto del código igual
+  const postsWithRatings = await Promise.all(
+    posts.map(async (post) => {
+      const [ratingResult, userRating] = await Promise.all([
+        db.ratings.aggregate({
+          where: {
+            id_post: post.id,
+          },
+          _sum: {
+            value: true,
+          },
+        }),
+        userId ? db.ratings.findFirst({
+          where: {
+            id_post: post.id,
+            id_user: userId,
+          },
+          select: {
+            value: true,
+          },
+        }) : Promise.resolve(null)
+      ]);
+      return {
+        ...post,
+        rating: ratingResult._sum.value || 0,
+        ratingValue: userRating?.value || 0,
+        isLiked: likedPostIds.includes(post.id)
+      };
+    })
+  );
+
+  const nonLikedPosts = postsWithRatings.filter(p => !p.isLiked);
+  const likedPosts = postsWithRatings.filter(p => p.isLiked);
+
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+			//@ts-ignore
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const shuffledNonLiked = shuffleArray(nonLikedPosts);
+  const shuffledLiked = shuffleArray(likedPosts);
+  const combinedPosts = [...shuffledNonLiked, ...shuffledLiked];
+  
+  const paginatedPosts = combinedPosts.slice(0, pageSize);
+  
+  // Para paginación aleatoria, las páginas no tienen mucho sentido
+  // Podrías retornar un estimado o simplemente indicar si hay más posts
+  const hasMore = totalCount > pageSize;
+  
+  return {
+    posts: paginatedPosts,
+    maxPages: Math.ceil(totalCount / pageSize), // Estimado
+    currentPage: page,
+    totalCount,
+    hasMore
+  };
+};
+
 export const deletePost = async (postId: string, userId: string) => {
 	return await db.post.delete({
 		where: {

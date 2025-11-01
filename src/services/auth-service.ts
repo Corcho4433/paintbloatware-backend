@@ -1,19 +1,22 @@
 import { sign, TokenExpiredError, verify, type JwtPayload } from "jsonwebtoken";
 import { db } from "../db/db";
 import { getUserByEmail } from "./user-service";
+import { NotFound, ValidationError } from "../errors/server_errors";
 
 
 
 export const verifyUser = async (email: string, password: string) => {
 	const user = await getUserByEmail(email);
-
+	if (!user) {
+		throw new NotFound("Usuario no encontrado");
+	}
 	if (!user.password) {
-		throw new Error("Usuario no tiene contraseña configurada");
+		throw new ValidationError("Usuario no tiene contraseña configurada");
 	}
 
 	const is_match = await Bun.password.verify(password, user.password);
 	if (!is_match) {
-		return; //throw new Error("La contraseña no coincide aprende a escribir :v");
+		throw new ValidationError("La contraseña no coincide");
 	}
 
 	return user;

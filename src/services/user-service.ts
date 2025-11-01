@@ -1,4 +1,5 @@
 import { db } from "../db/db";
+import { ValidationError } from "../errors/server_errors";
 
 
 export interface UserBody {
@@ -119,7 +120,7 @@ export const getUserByEmail = async (email: string) => {
 		},
 	});
 	if (!user) {
-		throw new Error("No hay usuario con el email/nombre dado :3");
+		throw new ValidationError("No hay usuario con el email/nombre dado");
 	}
 	return user;
 };

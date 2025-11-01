@@ -6,6 +6,7 @@ import {
 	getPostsByUser,
 	getPostsByTag,
 	deletePost,
+	getPostsRandomized,
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
 import { isAuthMiddleware, optionalAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
@@ -23,6 +24,23 @@ postRouter.get("/", optionalAuthMiddleware, async (req, res, next) => {
 		const result = await getPosts({ page, userId });
 
 		res.status(200).json({ 
+			posts: result.posts,
+			maxPages: result.maxPages,
+			currentPage: result.currentPage,
+			totalCount: result.totalCount
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+postRouter.get("/feed", isAuthMiddleware, async (req, res, next) => {
+	try {
+		const page = Number.parseInt(req.query.page as string) || 1;
+		const user = req.user as UserFromToken;
+		console.log("User in feed route:", user);
+		const result = await getPostsRandomized({ userId: user.id, page });
+		res.status(200).json({
 			posts: result.posts,
 			maxPages: result.maxPages,
 			currentPage: result.currentPage,
