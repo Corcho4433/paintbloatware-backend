@@ -13,6 +13,8 @@ model User {
   CommentThread CommentThread[]
   accounts      Account[]
   Admin         Admin[]
-
+  subscription  Subscription?
+  payments      Payment[]
+  
   @@map("users")
 }

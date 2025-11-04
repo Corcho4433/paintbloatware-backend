@@ -127,14 +127,13 @@ export const getUserByEmail = async (email: string) => {
 
 export const createLocalUser = async (userBody: UserBody) => {
 	try {
-		userBody.email
 		const user = await db.user.create({
 			data: { email: userBody.email, name: userBody.name, password: userBody.password_hash },
 		});
 		return user;
 	} catch (error) {
 		console.log(error)
-		throw new Error("Error al crear el usuario :c");
+		throw new ValidationError("Email ya registrado");
 	}
 };
 

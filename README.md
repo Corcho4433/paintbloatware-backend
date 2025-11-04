@@ -13,7 +13,6 @@ Para levantar la base de datos:
 - sudo docker-compose up -d
 - bun run migrate
 - bun run generate
-- bun run seed
 - bun run dev
 
 # TODO List

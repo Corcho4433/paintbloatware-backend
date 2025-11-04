@@ -11,7 +11,7 @@
 		"resetdb": "bun run src/utils/db.ts resetDatabase",
 		"migrate": "prisma migrate dev --schema src/db/schema",
 		"generate": "prisma generate --no-engine --schema src/db/schema",
-		"seed": "bun run src/db/seed.ts",
+		"admingenerate": "bun run src/db/admingenerate.ts",
 		"build": "bun build ./src/index.ts --outdir ./dist --target bun",
 		"start": "bun run ./dist/index.js"
 	},
@@ -42,6 +42,7 @@
 		"dotenv": "^17.2.1",
 		"express": "^4.21.2",
 		"jsonwebtoken": "^9.0.2",
+		"mercadopago": "^2.9.0",
 		"minio": "^8.0.5",
 		"multer": "^2.0.2",
 		"passport": "^0.7.0",
