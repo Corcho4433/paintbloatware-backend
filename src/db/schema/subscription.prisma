@@ -1,31 +1,32 @@
 model Subscription {
-  id               String           @id @default(cuid())
-  userId           String           @unique
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan             SubscriptionPlan @default(FREE)
-  status           SubscriptionStatus @default(INACTIVE)
-  startDate        DateTime?
-  endDate          DateTime?
-  cancelAtPeriodEnd Boolean         @default(false)
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
-  
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan   @default(FREE)
+  status            SubscriptionStatus @default(INACTIVE)
+  startDate         DateTime?
+  endDate           DateTime?
+  transactionId     String?            @unique
+  cancelAtPeriodEnd Boolean            @default(false)
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+
   @@map("subscriptions")
 }
 
 model Payment {
-  id              String        @id @default(cuid())
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount          Float
-  currency        String        @default("ARS")
-  status          PaymentStatus @default(PENDING)
-  plan            SubscriptionPlan
-  paymentMethod   String?       // "credit_card", "paypal", etc.
-  transactionId   String?       @unique // ID de la pasarela de pago
-  description     String?
-  created_at      DateTime      @default(now())
-  
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String           @default("ARS")
+  status        PaymentStatus    @default(PENDING)
+  plan          SubscriptionPlan
+  paymentMethod String? // "credit_card", "paypal", etc.
+  transactionId String?          @unique // ID de la pasarela de pago
+  description   String?
+  created_at    DateTime         @default(now())
+
   @@map("payments")
 }
 

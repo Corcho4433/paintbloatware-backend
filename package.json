@@ -13,7 +13,9 @@
 		"generate": "prisma generate --no-engine --schema src/db/schema",
 		"admingenerate": "bun run src/db/admingenerate.ts",
 		"build": "bun build ./src/index.ts --outdir ./dist --target bun",
-		"start": "bun run ./dist/index.js"
+		"start": "bun run ./dist/index.js",
+		"payments": "bun run ./src/db/checkpayments.ts",
+		"deletesubscriptions": "bun run ./src/db/deletesubscription.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

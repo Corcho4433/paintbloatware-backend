@@ -3,10 +3,11 @@ import {
 	createPassword,
 	deleteLastSession,
 	generateUserSession,
+	verifyAdminUser,
 	verifyRefreshToken,
 	verifyUser,
 } from "../services/auth-service";
-import { createLocalUser } from "../services/user-service";
+import { createLocalUser, getUserById } from "../services/user-service";
 import {
 	AuthError,
 	BadRequest,
@@ -14,6 +15,7 @@ import {
 } from "../errors/server_errors";
 import type { UserBody } from "../services/user-service";
 import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
+import { getSubscriptionByUserId } from "../services/subscription-service";
 
 export const authRouter = express.Router();
 
@@ -54,7 +56,7 @@ authRouter.post("/register", async (req, res, next) => {
 				maxAge: 1000 * 60 * 60 * 24 * 7,
 			})
 			.status(201)
-			.json({ data: { id: createdUser.id, pfp: createdUser.urlPfp }, success: true });
+			.json({ success: true });
 
 	} catch (error) {
 		next(error);
@@ -89,7 +91,7 @@ authRouter.post("/login", async (req, res, next) => {
 				maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
 			})
 			.status(200)
-			.json({ data: { id: createdUser.id, pfp: createdUser.urlPfp }, success: true });
+			.json({ success: true });
 	} catch (error) {
 		next(error);
 	}
@@ -155,6 +157,38 @@ authRouter.post("/refresh", async (req, res, next) => {
 			.json({ success: true });
 	} catch (error) {
 		console.log("Error in refresh endpoint:", error);
+		next(error);
+	}
+});
+
+authRouter.get("/me", isAuthMiddleware, async (req, res, next) => {
+	try {
+		// `req.user` viene del middleware isAuthMiddleware
+		const user = req.user as UserFromToken;
+
+		if (!user?.id) {
+			throw new ValidationError("Usuario no autenticado");
+		}
+
+		// Buscar datos del usuario en DB
+		const dbUser = await getUserById(user.id);
+		if (!dbUser){
+			throw Error("No estas logeado")
+		}
+		const isAdmin = await verifyAdminUser(user.id);
+		const hasNitro = await getSubscriptionByUserId(user.id);
+
+		
+		res.status(200).json({
+			data: {
+				id: dbUser.id,
+				pfp: dbUser.urlPfp,
+				admin: !!isAdmin,
+				nitro: !!hasNitro && hasNitro.status === "ACTIVE", // opcional: solo si está activa
+			},
+			success: true,
+		});
+	} catch (error) {
 		next(error);
 	}
 });

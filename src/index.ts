@@ -22,6 +22,7 @@ import { geminiRouter } from "./routers/gemini-router";
 import { adminRouter } from "./routers/admin-router";
 import { adminMiddleware, isAuthMiddleware } from "./middleware/authMiddleware";
 import { subscriptionRouter } from "./routers/subscription-router";
+import { paymentRouter } from "./routers/payment-router";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +57,7 @@ app.use("/api/pfp" , pfpRouter)
 app.use("/api/comment-threads", commentThreadRouter);
 app.use("/api/gemini", geminiRouter);
 app.use("/api/subscribe",subscriptionRouter)
+app.use("/api/payment", paymentRouter)
 app.use("/api/admin", isAuthMiddleware, adminMiddleware, adminRouter);
 
 // Health check
