@@ -24,6 +24,10 @@ subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
     }
     const preapproval = new PreApproval(mercadopago);
     const amount = getSubscriptionPrice(SubscriptionPlan.PAINT_NITRO)
+
+    if (await getSubscriptionByUserId(user.id)){
+      throw new ValidationError("User has an active subscription already")
+    }
     const subscription = await preapproval.create({
       body: {
         back_url: process.env.FRONTEND_PATH + "/nitro-success",
@@ -45,7 +49,7 @@ subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
     if (!subscription || !subscription.id) {
       throw new ValidationError("No valid subscription created")
     }
-    await createSubscriptionForUser(user.id, SubscriptionPlan.PAINT_NITRO, subscription.id)
+    
 
     res.status(200).json({ "init_point": subscription.init_point })
 
@@ -72,15 +76,12 @@ subscriptionRouter.post("/webhook", async (req, res, next) => {
         if (!userId || !payment.id) {
           throw new Error("No hay external reference")
         }
-        const subscription = await getSubscriptionByUserId(userId);
-        if (!subscription) {
-          throw Error("Error al crear el pago, no existe subscripcion asociada al usuario")
-        }
         const amount = payment.transaction_amount || 0;
         
-        await createPayment(userId, amount, subscription.plan,"Mercado pago", PaymentStatus.COMPLETED, (payment.id).toString())
+        await createPayment(userId, amount, SubscriptionPlan.PAINT_NITRO,"Mercado pago", PaymentStatus.COMPLETED, (payment.id).toString())
         break;
       case "created":
+
         break;
       case "updated":
         if (body.entity == "preapproval") {
@@ -98,7 +99,10 @@ subscriptionRouter.post("/webhook", async (req, res, next) => {
             // Según el estado actualizamos la base de datos
             switch (preapproval.status) {
               case "authorized":
-                
+                if (!preapproval.external_reference){
+                  throw new Error("Usuario desconocido")
+                }
+                await createSubscriptionForUser(preapproval.external_reference, SubscriptionPlan.PAINT_NITRO, subscriptionId)
                 await updateSubscription(subscriptionId, SubscriptionStatus.ACTIVE, preapproval.next_payment_date)
                 break;
 
