@@ -1,4 +1,5 @@
 import { db } from "../db/db";
+import { sanitizeCommentThread, sanitizeCommentThreads } from "../utils/sanitizePosts";
 
 
 interface CommentThreadBody {
@@ -24,12 +25,13 @@ export const createCommentThread = async (commentThread: CommentThreadBody) => {
 				select: {
 					name: true,
 					id: true,
-					urlPfp: true
+					urlPfp: true,
+          subscription: {select: {endDate: true}}
 				}
 			}
 		}
 	});
-	return { thread };
+	return { thread: sanitizeCommentThread(thread) };
 };
 
 export const getCommentThreadsByComment = async ({ id_comment, page = 1 }: { id_comment: string; page?: number }) => {
@@ -38,7 +40,7 @@ export const getCommentThreadsByComment = async ({ id_comment, page = 1 }: { id_
     db.commentThread.findMany({
       where: { id_comment },
       include: {
-        user: { select: { id: true, name: true, urlPfp:true } },
+        user: { select: { id: true, name: true, urlPfp:true, subscription: {select: {endDate: true}} } },
       },
       orderBy: { created_at: "desc" },
       skip: (page - 1) * pageSize,
@@ -49,7 +51,7 @@ export const getCommentThreadsByComment = async ({ id_comment, page = 1 }: { id_
 
   const maxPages = Math.ceil(totalCount / pageSize);
   return {
-    threads,
+    threads: sanitizeCommentThreads(threads),
     maxPages,
     currentPage: page,
     totalCount

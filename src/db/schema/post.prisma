@@ -4,6 +4,7 @@ model Post {
   content     String   @db.Text
   id_user     String
   url_bucket  String
+  sourceHidden Boolean @default(false)
   // height     Int
   // width      Int
   edited      Boolean  @default(false)

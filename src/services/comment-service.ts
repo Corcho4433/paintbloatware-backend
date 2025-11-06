@@ -1,4 +1,5 @@
 import { db } from "../db/db";
+import { sanitizeComment, sanitizeComments, sanitizeCommentThread } from "../utils/sanitizePosts";
 
 interface CommentBody {
 	id_user: string
@@ -39,7 +40,8 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 					select: {
 						name: true,
 						id: true,
-						urlPfp: true
+						urlPfp: true,
+						subscription: {select: {endDate: true}}
 					},
 				},
 				_count: {
@@ -63,7 +65,7 @@ export const getCommentsByPost = async (postID: string, {page}: { page: number }
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		comments: commentsWithThreadCount,
+		comments: sanitizeComments(commentsWithThreadCount),
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -79,7 +81,7 @@ export const getCommentsByUser = async (userID: string) => {
 };
 
 export const createComment = async (comment: CommentBody) => {
-    return await db.comment.create({
+    return await sanitizeComment(db.comment.create({
         data: {
             id_post: comment.id_post,
             id_user: comment.id_user,
@@ -92,11 +94,12 @@ export const createComment = async (comment: CommentBody) => {
                 select: {
                     name: true,
                     id: true,
-                    urlPfp: true
+                    urlPfp: true,
+										subscription: {select: {endDate: true}}
                 }
             }
         }
-    });
+    }));
 };
 
 export const createCommentThread = async (commentThread: CommentThreadBody) => {
@@ -116,12 +119,13 @@ export const createCommentThread = async (commentThread: CommentThreadBody) => {
 				select: {
 					name: true,
 					id: true,
-					urlPfp: true
+					urlPfp: true,
+					subscription: {select: {endDate: true}}
 				}
 			}
 		}
 	});
-	return { thread };
+	return { thread: sanitizeCommentThread(thread)  };
 };
 
 export const likeComment = async (commentID: string) => {

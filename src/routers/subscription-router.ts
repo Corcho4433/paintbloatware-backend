@@ -15,23 +15,7 @@ export const mercadopago = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN 
 
 subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
   try {
-    const signature = req.header("x-signature");
-    const requestId = req.header("x-request-id");
-    const secret = process.env.MP_WEBHOOK_SECRET;
-
-    if (!signature || !secret) {
-      console.warn("No hay firma o secret configurado");
-      return res.sendStatus(400);
-    }
-
-    // Verificamos la firma con el cuerpo original
-    const hash = crypto.createHmac("sha256", secret).update(req.body).digest("hex");
-    const expectedSignature = `sha256=${hash}`;
-
-    if (expectedSignature !== signature) {
-      console.warn("Firma inválida. Rechazando webhook");
-      return res.sendStatus(401);
-    }
+   
     const user = req.user as UserFromToken;
     const { plan, email } = req.body;
 
@@ -76,6 +60,7 @@ subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 
 subscriptionRouter.post("/webhook", async (req, res, next) => {
   try {
+    
     const body = req.body;
     // Mercado Pago puede enviar diferentes tipos de notificación
     // Nos interesa solo "subscription_preapproval"
@@ -113,7 +98,8 @@ subscriptionRouter.post("/webhook", async (req, res, next) => {
             // Según el estado actualizamos la base de datos
             switch (preapproval.status) {
               case "authorized":
-                await updateSubscription(subscriptionId, SubscriptionStatus.ACTIVE)
+                
+                await updateSubscription(subscriptionId, SubscriptionStatus.ACTIVE, preapproval.next_payment_date)
                 break;
 
               case "pending":
@@ -160,10 +146,11 @@ subscriptionRouter.get("/me", isAuthMiddleware, async (req, res, next) => {
         message: "No active subscription found"
       });
     }
+    const amount = getSubscriptionPrice(subscription.plan)
 
     res.status(200).json({
       success: true,
-      data: subscription
+      data: {...subscription, amount}
     });
   } catch (error) {
     next(error);

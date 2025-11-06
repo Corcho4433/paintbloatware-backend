@@ -10,9 +10,11 @@ import {
 } from "../services/post-service";
 import { createComment } from "../services/comment-service";
 import { isAuthMiddleware, optionalAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
-import { BadRequest, NotFound } from "../errors/server_errors";
+import { BadRequest, NotFound, ValidationError } from "../errors/server_errors";
 import { createRating, getRatingsByPost } from "../services/rating-service";
 import type { PostBody } from "../services/post-service";
+import { getSubscriptionByUserId } from "../services/subscription-service";
+import { SubscriptionStatus } from "@prisma/client";
 export const postRouter = express.Router();
 
 postRouter.get("/", optionalAuthMiddleware, async (req, res, next) => {
@@ -20,10 +22,10 @@ postRouter.get("/", optionalAuthMiddleware, async (req, res, next) => {
 		const page = Number.parseInt(req.query.page as string) || 1;
 		const user = req.user as UserFromToken | undefined;
 		const userId = user?.id;
-		
+
 		const result = await getPosts({ page, userId });
 
-		res.status(200).json({ 
+		res.status(200).json({
 			posts: result.posts,
 			maxPages: result.maxPages,
 			currentPage: result.currentPage,
@@ -74,11 +76,11 @@ postRouter.get("/tag/:tag", async (req, res, next) => {
 	try {
 		const tagName = req.params.tag;
 		const page = Number.parseInt(req.query.page as string) || 1;
-		
+
 		const result = await getPostsByTag(tagName, { page });
 		console.log(result);
 		if (!result.posts || result.posts.length === 0) {
-			return res.status(200).json({ 
+			return res.status(200).json({
 				posts: [],
 				maxPages: 0,
 				currentPage: page,
@@ -98,14 +100,14 @@ postRouter.get("/tag/:tag", async (req, res, next) => {
 	}
 });
 
-postRouter.get("/:id",optionalAuthMiddleware, async (req, res, next) => {
+postRouter.get("/:id", optionalAuthMiddleware, async (req, res, next) => {
 	try {
 		const id = req.params.id;
 		const userId = (req.user as UserFromToken | undefined)?.id;
 		if (!id) {
 			throw new BadRequest("Debes enviar un id de post");
 		}
-		const post = await getPostById({PostID: id, userId: userId});
+		const post = await getPostById({ PostID: id, userId: userId });
 
 		if (!post) {
 			throw new BadRequest("Ese post no existe");
@@ -131,6 +133,7 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 			"image",
 			"description",
 			"tags",
+
 		];
 
 		for (const field of requiredFields) {
@@ -139,6 +142,13 @@ postRouter.post("/", isAuthMiddleware, async (req, res, next) => {
 			}
 		}
 
+		if (post_body.sourceHidden) {
+			const subscription = await getSubscriptionByUserId(user.id);
+			if (!subscription?.endDate || subscription.endDate < new Date()) {
+				throw new ValidationError("El usuario no tiene nitro");
+			}
+
+		}
 		const post = await createPost({ id_user: user.id, ...post_body });
 
 		if (!post) {

@@ -19,7 +19,7 @@ export const getUsers = async () => {
 };
 
 export const getUserById = async (UserID: string) => {
-	return await db.user.findFirst({
+	const user = await db.user.findFirst({
 		where: {
 			id: UserID,
 		},
@@ -27,9 +27,14 @@ export const getUserById = async (UserID: string) => {
 			id: true,
 			name: true,
 			urlPfp: true,
-			description: true
+			description: true,
+			subscription: true
 		}
 	});
+
+	if (!user) return null; 
+
+	return {...user, nitro: user.subscription && user.subscription.endDate && user.subscription.endDate > new Date()}
 };
 
 export const getAdmin = async (UserID: string) => {

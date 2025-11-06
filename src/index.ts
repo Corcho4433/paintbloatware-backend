@@ -28,7 +28,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const minioClient = MinioClientSingleton.getInstance();
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf; // guardamos el buffer original
+    },
+  })
+);
 app.use(passport.initialize());
 app.use(cookieParser()); // 🍪 Middleware para parsear cookies
 

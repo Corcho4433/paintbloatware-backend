@@ -12,7 +12,7 @@ export function isValidStatusPayment(status: string): status is PaymentStatus {
 }
 
 export function isValidSubscriptionStatus(status: string): status is SubscriptionStatus {
-     return Object.values(SubscriptionStatus).includes(status as SubscriptionStatus)
+  return Object.values(SubscriptionStatus).includes(status as SubscriptionStatus)
 }
 
 
@@ -52,15 +52,24 @@ export const createSubscriptionForUser = async (
 };
 
 
-export const updateSubscription = async (transactionId: string, status: string) => {
+export const updateSubscription = async (transactionId: string, status: string, next_payment_date?: string) => {
   try {
-    if (!isValidSubscriptionStatus(status)){
+    if (!isValidSubscriptionStatus(status)) {
       throw new Error("No existe ese status")
     }
-    const subscription = await db.subscription.update({
-      where: { transactionId },
-      data: { status },
-    });
+    let subscription;
+
+    if (status === SubscriptionStatus.ACTIVE) {
+      subscription = await db.subscription.update({
+        where: { transactionId },
+        data: { status, endDate: next_payment_date },
+      });
+    } else {
+      subscription = await db.subscription.update({
+        where: { transactionId },
+        data: { status },
+      });
+    }
 
     return subscription;
   } catch (error: any) {
@@ -78,9 +87,9 @@ export const updateSubscription = async (transactionId: string, status: string) 
 };
 
 export const getSubscriptionByUserId = async (userId: string) => {
-  return db.subscription.findUnique({where: {userId}})
+  return db.subscription.findUnique({ where: { userId } })
 }
 
 export const getSubscriptionByTransactionId = async (transaction: string) => {
-  return db.subscription.findUnique({where: {transactionId: transaction}})
+  return db.subscription.findUnique({ where: { transactionId: transaction } })
 }

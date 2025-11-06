@@ -1,4 +1,5 @@
 import { db } from "../db/db";
+import { sanitizePost, sanitizePosts } from "../utils/sanitizePosts";
 
 export interface PostBody {
 	source: string;
@@ -6,6 +7,7 @@ export interface PostBody {
 	description: string;
 	tags: string[];
 	id_user: string;
+	sourceHidden?: boolean;
 }
 
 export const getPosts = async ({ page, userId }: { page: number; userId?: string }) => {
@@ -23,11 +25,15 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 				description: true,
 				created_at: true,
 				edited: true,
+				sourceHidden: true,
 				user: {
 					select: {
 						name: true,
 						id: true,
-						urlPfp: true
+						urlPfp: true,
+						subscription: {
+						select: {endDate: true}
+					}
 					},
 				},
 				_count: {
@@ -86,7 +92,7 @@ export const getPosts = async ({ page, userId }: { page: number; userId?: string
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts: postsWithRatings,
+		posts: sanitizePosts(postsWithRatings),
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -122,11 +128,15 @@ export const getPostsRandomized = async ({ page, userId }: { page: number; userI
       description: true,
       created_at: true,
       edited: true,
+			sourceHidden: true,
       user: {
         select: {
           name: true,
           id: true,
-          urlPfp: true
+          urlPfp: true,
+					subscription: {
+						select: {endDate: true}
+					}
         },
       },
       _count: {
@@ -202,7 +212,7 @@ export const getPostsRandomized = async ({ page, userId }: { page: number; userI
   const hasMore = totalCount > pageSize;
   
   return {
-    posts: paginatedPosts,
+    posts: sanitizePosts(paginatedPosts),
     maxPages: Math.ceil(totalCount / pageSize), // Estimado
     currentPage: page,
     totalCount,
@@ -238,12 +248,16 @@ export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: s
 				content: true,
 				description: true,
 				edited: true,
+				sourceHidden: true,
 				created_at: true,
 				user: {
 					select: {
 						name: true,
 						id: true,
-						urlPfp: true
+						urlPfp: true,
+						subscription: {
+						select: {endDate: true}
+					}
 					},
 				},
 				_count: {
@@ -295,7 +309,7 @@ export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: s
 			]);
 
 			return {
-				...post,
+				...(post),
 				rating: ratingResult._sum.value || 0,
 				ratingValue: userRating?.value || 0 // 1, -1, o 0
 			};
@@ -305,7 +319,7 @@ export const getPostsByUser = async ({ userID, page, loggedUserId }: { userID: s
 	const maxPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts: postsWithRatings,
+		posts: sanitizePosts(postsWithRatings),
 		maxPages,
 		currentPage: page,
 		totalCount
@@ -321,6 +335,7 @@ export const getPostById = async ({PostID, userId}: {PostID: string, userId?: st
 				url_bucket: true,
 				created_at: true,
 				description: true,
+				sourceHidden: true,
 				edited: true,
 				TagsForPost: {
 					select: {
@@ -337,6 +352,9 @@ export const getPostById = async ({PostID, userId}: {PostID: string, userId?: st
 						name: true,
 						urlPfp: true,
 						id: true,
+						subscription: {
+						select: {endDate: true}
+					}
 					},
 				},
 				comments: {
@@ -381,7 +399,7 @@ export const getPostById = async ({PostID, userId}: {PostID: string, userId?: st
 	}
 
 	return {
-		...post,
+		...sanitizePost(post),
 		rating: ratingResult._sum.value || 0,
 		ratingValue: userRating?.value || 0 // 1, -1, o 0
 	};
@@ -415,7 +433,7 @@ export const createPost = async (post: PostBody) => {
 			})
 		);
 	}
-
+	
 	// Si llegamos aquí, todas las tags son válidas, proceder a crear el post
 	const postResult = await db.post.create({
 		data: {
@@ -423,6 +441,7 @@ export const createPost = async (post: PostBody) => {
 			content: post.source,
 			id_user: post.id_user,
 			url_bucket: post.image,
+			sourceHidden: post.sourceHidden
 		},
 	});
 
@@ -491,12 +510,16 @@ export const getPostsByTag = async (tagName: string, { page = 1 }: { page?: numb
 				content: true,
 				description: true,
 				created_at: true,
+				sourceHidden: true,
 				edited: true,
 				user: {
 					select: {
 						name: true,
 						id: true,
-						urlPfp: true
+						urlPfp: true,
+						subscription: {
+						select: {endDate: true}
+					}
 					},
 				},
 				_count: {
@@ -539,7 +562,7 @@ export const getPostsByTag = async (tagName: string, { page = 1 }: { page?: numb
 	const totalPages = Math.ceil(totalCount / pageSize);
 
 	return {
-		posts,
+		posts: sanitizePosts(posts),
 		pagination: {
 			currentPage: page,
 			totalPages,
