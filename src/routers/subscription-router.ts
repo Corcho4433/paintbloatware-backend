@@ -2,7 +2,7 @@ import express from "express";
 import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddleware";
 import { createPayment, updatePayment } from "../services/payment-service";
 import { getSubscriptionPrice } from "../config/pricing";
-import MercadoPagoConfig, { Payment, PreApproval } from "mercadopago";
+import {MercadoPagoConfig, Payment, PreApproval } from "mercadopago";
 import { getUserById, getUserPersonalInfoByID } from "../services/user-service";
 import { ValidationError } from "../errors/server_errors";
 import { createSubscriptionForUser, getSubscriptionByTransactionId, getSubscriptionByUserId, isValidSubscriptionPlan, updateSubscription } from "../services/subscription-service";
