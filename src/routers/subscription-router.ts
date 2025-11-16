@@ -3,7 +3,7 @@ import { isAuthMiddleware, type UserFromToken } from "../middleware/authMiddlewa
 import { createPayment, updatePayment } from "../services/payment-service";
 import { getSubscriptionPrice } from "../config/pricing";
 import {MercadoPagoConfig, Payment, PreApproval } from "mercadopago";
-import { getUserById, getUserPersonalInfoByID } from "../services/user-service";
+import { getEmailByUserId, getUserById, getUserPersonalInfoByID } from "../services/user-service";
 import { ValidationError } from "../errors/server_errors";
 import { createSubscriptionForUser, getSubscriptionByTransactionId, getSubscriptionByUserId, isValidSubscriptionPlan, updateSubscription } from "../services/subscription-service";
 import { PaymentStatus, SubscriptionPlan, SubscriptionStatus } from "@prisma/client";
@@ -17,14 +17,17 @@ subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
   try {
    
     const user = req.user as UserFromToken;
-    const { plan, email } = req.body;
+    const { plan, id_user } = req.body;
 
     if (!isValidSubscriptionPlan(plan)) {
       throw new ValidationError("No es un plan valido de Nitro")
     }
     const preapproval = new PreApproval(mercadopago);
     const amount = getSubscriptionPrice(SubscriptionPlan.PAINT_NITRO)
-
+    const userInfo = await getEmailByUserId(id_user);
+    if (!userInfo?.email) {
+      throw new Error("User email not found");
+    }
     if (await getSubscriptionByUserId(user.id)){
       throw new ValidationError("User has an active subscription already")
     }
@@ -40,7 +43,7 @@ subscriptionRouter.post("/", isAuthMiddleware, async (req, res, next) => {
           start_date: new Date().toISOString(),
           end_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
         },
-        payer_email: email,
+        payer_email: userInfo.email,
         status: "pending",
         external_reference: user.id
 

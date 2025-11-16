@@ -18,6 +18,23 @@ export const getUsers = async () => {
 	return await db.user.findMany();
 };
 
+export const getEmailByUserId = async (UserID: string) => {
+	const user = await db.user.findFirst({
+		where: {
+			id: UserID,
+		},
+		select: {
+			id: true,
+			name: true,
+			urlPfp: true,
+			description: true,
+			subscription: true,
+			email: true,
+		}
+	});
+return user
+}
+
 export const getUserById = async (UserID: string) => {
 	const user = await db.user.findFirst({
 		where: {
